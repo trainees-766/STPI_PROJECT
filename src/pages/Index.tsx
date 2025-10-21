@@ -45,8 +45,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-accent/20 p-6">
       <div className="max-w-8xl mx-auto space-y-10 md:space-y-20">
-        <div className="flex flex-col items-center gap-3 lg:flex-row lg:items-end lg:justify-between absolute top-0 left-0">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col items-center gap-3 lg:flex-row w-full lg:items-end lg:justify-between absolute top-0 left-0">
+          <div className="flex items-center gap-4 backdrop-blur-md w-full">
             <img src="/stpilogo.png" alt="STPI Logo" className="h-52 w-52" />
             <div className="text-left">
               <h1 className="text-3xl sm:text-4xl lg:text-4xl font-extrabold text-sky-600">
@@ -59,12 +59,15 @@ const Index = () => {
             </div>
           </div>
         </div>
-        <div className="grid md:grid-cols-2 gap-20 p-20 pt-25">
+        <div
+          className="grid md:grid-cols-2 gap-20 p-20 pt-25 overflow-y-auto"
+          style={{ maxHeight: 'calc(100vh - 180px)' }}
+        >
           {sections.map((section) => {
             const Icon = section.icon;
             return (
               <Link key={section.title} to={section.path}>
-                <Card className="shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group cursor-pointer p-4 sm:p-6 h-full">
+                <Card className="shadow-card hover:shadow-card-hover transition-all duration-300 group cursor-pointer p-4 sm:p-6 h-full">
                   <CardHeader className="text-center pb-2">
                     <div
                       className={`w-18 h-18 p-2 mx-auto rounded-full bg-gradient-to-r ${section.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}

@@ -175,8 +175,8 @@ const IncubationPage = () => {
         </div>
 
         {/* Customers Grid */}
-        <div className="max-h-[75vh] overflow-y-auto pr-2">
-          <div className="grid gap-4 md:grid-cols-3 h-50">
+        <div className="overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+          <div className="grid gap-4 md:grid-cols-3">
             {customers.length === 0 ? (
               <Card className="shadow-card text-center py-12">
                 <CardContent>

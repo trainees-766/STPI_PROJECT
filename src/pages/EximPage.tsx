@@ -222,7 +222,7 @@ const EximPage = () => {
                 Add STPI Unit
               </Button>
             </div>
-
+ <div className="overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 250px)' }}>
             <div className="grid gap-4 grid-cols-3">
               {currentUnits.map((unit) => (
                 <Card
@@ -274,6 +274,7 @@ const EximPage = () => {
                 </Card>
               ))}
             </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="non-stpi" className="space-y-6">
@@ -287,7 +288,7 @@ const EximPage = () => {
                 Add Non-STPI Unit
               </Button>
             </div>
-
+ <div className="overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 250px)' }}>
             <div className="grid gap-4 grid-cols-3">
               {currentUnits.map((unit) => (
                 <Card
@@ -378,6 +379,7 @@ const EximPage = () => {
                   </CardContent>
                 </Card>
               ))}
+            </div>
             </div>
           </TabsContent>
         </Tabs>

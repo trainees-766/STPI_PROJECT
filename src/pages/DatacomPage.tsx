@@ -262,90 +262,92 @@ const DatacomPage = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              {currentCustomers.map((customer) => (
-                <Card
-                  key={customer._id}
-                  className="shadow-card hover:shadow-card-hover transition-shadow"
-                >
-                  <CardHeader className="pb-2">
-                    <div className="grid grid-cols-2 md:grid-cols-2 items-center">
-                      <div className="flex justify-center md:justify-start">
-                        <div className="w-11/12 md:w-full text-center md:text-left">
-                          <CardTitle className="text-lg font-semibold">
-                            {customer.companyName}
-                          </CardTitle>
+            <div className="overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+              <div className="grid grid-cols-3 gap-4">
+                {rfCustomers.map((customer) => (
+                  <Card
+                    key={customer._id}
+                    className="shadow-card hover:shadow-card-hover transition-shadow"
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="grid grid-cols-2 md:grid-cols-2 items-center">
+                        <div className="flex justify-center md:justify-start">
+                          <div className="w-11/12 md:w-full text-center md:text-left">
+                            <CardTitle className="text-lg font-semibold">
+                              {customer.companyName}
+                            </CardTitle>
+                          </div>
+                        </div>
+                        <div className="flex justify-center md:justify-end gap-2 mt-3 md:mt-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setViewingCustomer(customer)}
+                            className="text-sky-600 hover:bg-sky-50"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingCustomer(customer);
+                              setShowForm(true);
+                            }}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteCustomer(customer._id)}
+                            className="text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex justify-center md:justify-end gap-2 mt-3 md:mt-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setViewingCustomer(customer)}
-                          className="text-sky-600 hover:bg-sky-50"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setEditingCustomer(customer);
-                            setShowForm(true);
-                          }}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteCustomer(customer._id)}
-                          className="text-destructive hover:text-destructive-foreground hover:bg-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
+                    </CardHeader>
 
-                  <CardContent>
-                    <div className="grid md:grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p>
-                          <span className="font-medium">Customer Name:</span>{" "}
-                          {customer.companyName}
-                        </p>
-                        <p>
-                          <span className="font-medium">Manager:</span>{" "}
-                          {customer.managerName}
-                        </p>
-                        <p>
-                          <span className="font-medium">Email:</span>{" "}
-                          {customer.managerEmail}
-                        </p>
-                        <p>
-                          <span className="font-medium">Phone:</span>{" "}
-                          {customer.managerPhone}
-                        </p>
+                    <CardContent>
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p>
+                            <span className="font-medium">Customer Name:</span>{" "}
+                            {customer.companyName}
+                          </p>
+                          <p>
+                            <span className="font-medium">Manager:</span>{" "}
+                            {customer.managerName}
+                          </p>
+                          <p>
+                            <span className="font-medium">Email:</span>{" "}
+                            {customer.managerEmail}
+                          </p>
+                          <p>
+                            <span className="font-medium">Phone:</span>{" "}
+                            {customer.managerPhone}
+                          </p>
+                        </div>
+                        <div>
+                          <p>
+                            <span className="font-medium">Leader:</span>{" "}
+                            {customer.leaderName} ({customer.leaderDesignation})
+                          </p>
+                          <p>
+                            <span className="font-medium">Period:</span>{" "}
+                            {customer.startDate} to {customer.endDate}
+                          </p>
+                          <p>
+                            <span className="font-medium">Bandwidth:</span>{" "}
+                            {customer.bandwidth}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p>
-                          <span className="font-medium">Leader:</span>{" "}
-                          {customer.leaderName} ({customer.leaderDesignation})
-                        </p>
-                        <p>
-                          <span className="font-medium">Period:</span>{" "}
-                          {customer.startDate} to {customer.endDate}
-                        </p>
-                        <p>
-                          <span className="font-medium">Bandwidth:</span>{" "}
-                          {customer.bandwidth}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </TabsContent>
 
@@ -360,7 +362,7 @@ const DatacomPage = () => {
                 Add LAN Customer
               </Button>
             </div>
-            <div className="max-h-[70vh] overflow-y-auto pr-2">
+            <div className="overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 350px)' }}>
               <div className="grid gap-4 grid-cols-3">
                 {currentCustomers.map((customer) => (
                   <Card
