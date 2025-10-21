@@ -67,9 +67,9 @@ const Index = () => {
                 <Card className="shadow-card hover:shadow-card-hover transition-all duration-300 hover:scale-105 group cursor-pointer p-4 sm:p-6 h-full">
                   <CardHeader className="text-center pb-2">
                     <div
-                      className={`w-18 h-18 mx-auto rounded-full bg-gradient-to-r ${section.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                      className={`w-18 h-18 p-2 mx-auto rounded-full bg-gradient-to-r ${section.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
                     >
-                      <Icon className="h-9 w-9 text-white" />
+                      <Icon className="h-25 w-25 text-white" />
                     </div>
                     <CardTitle className="text-lg sm:text-xl lg:text-2xl group-hover:text-sky-600 transition-colors">
                       {section.title}

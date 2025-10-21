@@ -6,6 +6,7 @@ import {
   Plus,
   Trash2,
   Edit2,
+  ArrowRight,
   Eye,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -203,7 +204,7 @@ const DatacomPage = () => {
       <div className="max-w-8xl mx-auto space-y-8 lg:space-y-10">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 w-full">
             <Link to="/">
               <Button
                 variant="outline"
@@ -227,7 +228,7 @@ const DatacomPage = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-md">
             <TabsTrigger value="rf" className="flex items-center gap-2">
               <Wifi className="h-4 w-4" />
               RF Customers
@@ -236,6 +237,17 @@ const DatacomPage = () => {
               <Network className="h-4 w-4" />
               LAN Customers
             </TabsTrigger>
+            <div className="ml-2">
+              <a
+                target="_blank"
+                href="https://onedrive.live.com/:x:/g/personal/48290514C262A261/EUwO93NDugFEp3Bo5z2LSXIBNlWvypY45KHPGmWtxI2TMA?resid=48290514C262A261!s73f70e4cba434401a77068e73d8b4972&ithint=file%2Cxlsx&e=8CkHLh&migratedtospo=true&redeem=aHR0cHM6Ly8xZHJ2Lm1zL3gvYy80ODI5MDUxNGMyNjJhMjYxL0VVd085M05EdWdGRXAzQm81ejJMU1hJQk5sV3Z5cFk0NUtIUEdtV3R4STJUTUE_ZT04Q2tITGg"
+              >
+                <p className="bg-transparent flex gap-2 text-black justify-center hover:underline group cursor-pointer">
+                  SEE AMC LIST{" "}
+                  <ArrowRight className="group-hover:translate-x-2 transition-all ease" />
+                </p>
+              </a>
+            </div>
           </TabsList>
 
           <TabsContent value="rf" className="space-y-6">

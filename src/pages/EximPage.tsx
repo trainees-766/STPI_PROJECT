@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   Building,
   Building2,
+  ArrowRight,
   Plus,
   Trash2,
   Edit2,
@@ -40,6 +41,10 @@ const EximPage = () => {
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewingUnit, setViewingUnit] = useState<Unit | null>(null);
+  const stpiLink =
+    "https://onedrive.live.com/:x:/g/personal/48290514C262A261/EQyJdK9JxfxGj4Rv-c0uOBsBNc9EDPZAIzY-ghRP15lP2Q?resid=48290514C262A261!saf74890cc54946fc8f846ff9cd2e381b&ithint=file%2Cxlsx&e=KFrTW6&migratedtospo=true&redeem=aHR0cHM6Ly8xZHJ2Lm1zL3gvYy80ODI5MDUxNGMyNjJhMjYxL0VReUpkSzlKeGZ4R2o0UnYtYzB1T0JzQk5jOUVEUFpBSXpZLWdoUlAxNWxQMlE_ZT1LRnJUVzY";
+  const nonStpiLink =
+    "https://onedrive.live.com/:x:/g/personal/48290514C262A261/EYlVHHos9nhOk2TP5y05NUUB5EeT71CgpPOOPuC1sQR8hA?resid=48290514C262A261!s7a1c5589f62c4e789364cfe72d393545&ithint=file%2Cxlsx&e=SO8ITk&migratedtospo=true&redeem=aHR0cHM6Ly8xZHJ2Lm1zL3gvYy80ODI5MDUxNGMyNjJhMjYxL0VZbFZISG9zOW5oT2syVFA1eTA1TlVVQjVFZVQ3MUNncFBPT1B1QzFzUVI4aEE_ZT1TTzhJVGs";
 
   // Fetch units on mount
   useEffect(() => {
@@ -480,6 +485,15 @@ const EximPage = () => {
           </DialogContent>
         </Dialog>
       </div>
+      <a
+        target="_blank"
+        href={`${activeTab == "stpi" ? stpiLink : nonStpiLink}`}
+      >
+        <p className="flex gap-2 text-accent-foreground justify-center hover:underline group cursor-pointer">
+          SEE ALL UNITS{" "}
+          <ArrowRight className="group-hover:translate-x-2 transition-all ease" />
+        </p>
+      </a>
     </div>
   );
 };
