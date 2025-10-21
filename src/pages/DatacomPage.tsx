@@ -22,7 +22,7 @@ import {
 import { CustomerForm } from "@/components/CustomerForm";
 import { useToast } from "@/hooks/use-toast";
 
-const API_BASE_URL = "http://10.1.2.10:5000/api"; // Change to your backend URL
+const API_BASE_URL = "http://10.1.2.138:5000/api"; 
 
 interface Customer {
   _id: string;

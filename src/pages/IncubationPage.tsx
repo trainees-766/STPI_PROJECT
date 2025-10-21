@@ -30,7 +30,7 @@ interface IncubationCustomer {
   prtgGraphLink: string;
 }
 
-const API_BASE_URL = "http://10.1.2.10:5000/api";
+const API_BASE_URL = "http://10.1.2.138:5000/api"; 
 
 const IncubationPage = () => {
   const [customers, setCustomers] = useState<IncubationCustomer[]>([]);
