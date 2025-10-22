@@ -35,7 +35,7 @@ const Footer = () => {
         </nav>
 
         <div className="text-sm text-muted-foreground">
-         &copy; {new Date().getFullYear()} STPI — All rights reserved To Trainees 2nd Batch
+         &copy; {new Date().getFullYear()} STPI — All rights reserved To STPI Kakinada
         </div>
       </div>
     </footer>

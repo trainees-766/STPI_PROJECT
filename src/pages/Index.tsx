@@ -46,8 +46,8 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background to-accent/20 p-6">
       <div className="max-w-8xl mx-auto space-y-10 md:space-y-20">
         <div className="flex flex-col items-center gap-3 lg:flex-row w-full lg:items-end lg:justify-between absolute top-0 left-0">
-          <div className="flex items-center gap-4 backdrop-blur-md w-full">
-            <img src="/stpilogo.png" alt="STPI Logo" className="h-52 w-52" />
+          <div className="flex items-center gap-4 bg-background w-full pt-7">
+            <img src="/stpilogo.png" alt="STPI Logo" className="h-32 w-32" />
             <div className="text-left">
               <h1 className="text-3xl sm:text-4xl lg:text-4xl font-extrabold text-sky-600">
                 SOFTWARE TECHNOLOGY PARKS OK INDIA - KAKINADA

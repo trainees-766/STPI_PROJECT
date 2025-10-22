@@ -266,7 +266,7 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
                     <Input
                       value={expense.description}
                       onChange={(e) => updateArrayItem("financialExpenses", index, { ...expense, description: e.target.value })}
-                      placeholder="Description"
+                      placeholder="Month"
                       className="flex-1"
                     />
                     <Button
