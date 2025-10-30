@@ -28,7 +28,12 @@ const unitSchema = new mongoose.Schema(
       default: [],
     },
     softexDetails: {
-      type: [String],
+      type: [ {
+        year: String,
+        month: String,
+        amount: String,
+        mpr: String,
+      },],
       default: [],
     },
     financialExpenses: [

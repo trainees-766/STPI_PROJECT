@@ -2,32 +2,26 @@ import { useState } from "react";
 
 export default function FinancialExpensesSection({ viewingUnit }) {
   const [filterYear, setFilterYear] = useState("");
-  const [filterMonth, setFilterMonth] = useState("");
+  const [filterSlab, setFilterSlab] = useState("");
 
   // ✅ Filter + sort (latest year first)
   const filteredExpenses = (
     viewingUnit?.financialExpenses?.filter((e) => {
       const matchYear = filterYear ? e.year === filterYear : true;
-      const matchMonth = filterMonth ? e.description === filterMonth : true;
-      return matchYear && matchMonth;
+      const matchSlab = filterSlab ? e.amount === filterSlab : true;
+      return matchYear && matchSlab;
     }) ?? []
   ).sort((a, b) => Number(b.year) - Number(a.year));
-
-  // ✅ Compute total Softex amount
-  const totalAmount = filteredExpenses.reduce(
-    (sum, e) => sum + (parseFloat(e.amount) || 0),
-    0
-  );
 
   // ✅ Unique sorted dropdown values
   const years = [
     ...new Set(viewingUnit?.financialExpenses?.map((e) => e.year) || []),
   ].sort((a, b) => Number(b) - Number(a));
 
-  const months = [
+  const slabs = [
     ...new Set(
       viewingUnit?.financialExpenses
-        ?.map((e) => e.description)
+        ?.map((e) => e.amount) // ✅ slab stored in amount
         .filter(Boolean) || []
     ),
   ];
@@ -55,13 +49,13 @@ export default function FinancialExpensesSection({ viewingUnit }) {
 
         <select
           className="border rounded-md px-3 py-2 text-sm"
-          value={filterMonth}
-          onChange={(e) => setFilterMonth(e.target.value)}
+          value={filterSlab}
+          onChange={(e) => setFilterSlab(e.target.value)}
         >
-          <option value="">All Months</option>
-          {months.map((month) => (
-            <option key={month} value={month}>
-              {month}
+          <option value="">All Slabs</option>
+          {slabs.map((slab) => (
+            <option key={slab} value={slab}>
+              {slab}
             </option>
           ))}
         </select>
@@ -73,8 +67,8 @@ export default function FinancialExpensesSection({ viewingUnit }) {
           <thead className="bg-sky-50 text-sky-700 font-semibold">
             <tr>
               <th className="px-4 py-2 text-left border-b">Year</th>
-              <th className="px-4 py-2 text-left border-b">Month</th>
-              <th className="px-4 py-2 text-right border-b">Amount (₹)</th>
+              <th className="px-4 py-2 text-left border-b">Slab</th>
+              <th className="px-4 py-2 text-left border-b">Service Charges (₹)</th>
             </tr>
           </thead>
           <tbody>
@@ -85,9 +79,9 @@ export default function FinancialExpensesSection({ viewingUnit }) {
                   className="hover:bg-sky-50 transition-colors border-b last:border-0"
                 >
                   <td className="px-4 py-2">{e.year}</td>
-                  <td className="px-4 py-2">{e.description || "-"}</td>
-                  <td className="px-4 py-2 text-right font-medium text-sky-700">
-                    ₹{e.amount}
+                  <td className="px-4 py-2">{e.amount || "-"}</td>
+                  <td className="px-4 py-2 font-medium text-sky-700">
+                    ₹{e.description}
                   </td>
                 </tr>
               ))
@@ -103,11 +97,6 @@ export default function FinancialExpensesSection({ viewingUnit }) {
             )}
           </tbody>
         </table>
-      </div>
-
-      {/* Total Softex Amount */}
-      <div className="mt-3 text-right font-semibold text-sky-700">
-        Total Softex Amount: ₹{totalAmount.toLocaleString("en-IN")}
       </div>
     </div>
   );

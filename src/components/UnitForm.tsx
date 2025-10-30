@@ -31,7 +31,7 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
     endDate: unit?.endDate || "",
     legalAgreements: unit?.legalAgreements || (isStpi ? [""] : undefined),
     aprReports: unit?.aprReports || [""],
-    softexDetails: unit?.softexDetails || [""],
+  softexDetails: unit?.softexDetails || [{ year: "", month: "", amount: "", mpr: "" }],
     financialExpenses: unit?.financialExpenses || [{ year: "", amount: "", description: "" }],
   });
 
@@ -42,7 +42,10 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
       ...formData,
       legalAgreements: isStpi ? formData.legalAgreements?.filter(Boolean) : undefined,
       aprReports: formData.aprReports.filter(Boolean),
-      softexDetails: formData.softexDetails.filter(Boolean),
+   softexDetails: formData.softexDetails.filter(
+  (s) => s.year || s.month || s.amount || s.mpr
+),
+
       financialExpenses: formData.financialExpenses.filter(exp => exp.year && exp.amount),
     };
     
@@ -55,12 +58,18 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
         ...prev,
         [field]: [...(prev[field] as any[]), { year: "", amount: "", description: "" }]
       }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [field]: [...(prev[field] as string[]), ""]
-      }));
-    }
+    } else if (field === "softexDetails") {
+  setFormData(prev => ({
+    ...prev,
+    [field]: [...prev[field], { year: "", month: "", amount: "", mpr: "" }]
+  }));
+} else {
+  setFormData(prev => ({
+    ...prev,
+    [field]: [...(prev[field] as string[]), ""]
+  }));
+}
+
   };
 
   const removeArrayItem = (field: string, index: number) => {
@@ -76,6 +85,36 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
       [field]: (prev[field] as any[]).map((item, i) => i === index ? value : item)
     }));
   };
+const tariffTable = [
+  { amount: "0-12.5", label: "0 – 12.5 Lakhs", description: 4000 },
+  { amount: "12.5-25", label: "12.5 – 25 Lakhs", description: 8000 },
+  { amount: "25-50", label: "25 – 50 Lakhs", description: 16000 },
+  { amount: "50-300", label: "50 Lakhs – 3 Crores", description: 55000 },
+  { amount: "300-1000", label: "3 Crores – 10 Crores", description: 110000 },
+  { amount: "1000-2500", label: "10 Crores – 25 Crores", description: 225000 },
+  { amount: "2500-5000", label: "25 Crores – 50 Crores", description: 250000 },
+  { amount: "5000-10000", label: "50 Crores – 100 Crores", description: 350000 },
+  { amount: "10000-50000", label: "100 Crores – 500 Crores", description: 575000 },
+  { amount: "50000-100000", label: "500 Crores – 1000 Crores", description: 600000 },
+  { amount: "100000-INF", label: "More than 1000 Crores", description: 650000 },
+];
+
+const handleRangeSelect = (index, selectedValue) => {
+  const selectedRange = tariffTable.find(r => r.value === selectedValue);
+
+  const updated = [...formData.financialExpenses];
+  updated[index] = {
+    ...updated[index],
+    amount: selectedValue,                 // ✅ range stored in amount
+    description: selectedRange ? selectedRange.sc : "",   // ✅ charge auto-fill
+  };
+
+  setFormData(prev => ({ ...prev, financialExpenses: updated }));
+};
+
+
+
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -200,44 +239,88 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
             </div>
 
             {/* Softex Details */}
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-primary">Softex Details</h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addArrayItem("softexDetails")}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Detail
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {formData.softexDetails.map((detail, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={detail}
-                      onChange={(e) => updateArrayItem("softexDetails", index, e.target.value)}
-                      placeholder="Softex detail/reference"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeArrayItem("softexDetails", index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {/* Softex Details */}
+<div className="space-y-4">
+  <div className="flex justify-between items-center">
+    <h3 className="text-lg font-semibold text-primary">Softex Details</h3>
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      onClick={() => addArrayItem("softexDetails")}
+    >
+      <Plus className="h-4 w-4 mr-2" />
+      Add Detail
+    </Button>
+  </div>
+
+  <div className="space-y-3">
+    {formData.softexDetails.map((detail, index) => (
+      <div key={index} className="flex flex-col md:flex-row gap-2 w-full items-center">
+
+        {/* Year */}
+        <Input
+          placeholder="Year"
+          value={detail.year}
+          onChange={(e) => {
+            const updated = [...formData.softexDetails];
+            updated[index].year = e.target.value;
+            setFormData({ ...formData, softexDetails: updated });
+          }}
+        />
+
+        {/* Month */}
+        <Input
+          placeholder="Month"
+          value={detail.month}
+          onChange={(e) => {
+            const updated = [...formData.softexDetails];
+            updated[index].month = e.target.value;
+            setFormData({ ...formData, softexDetails: updated });
+          }}
+        />
+
+        {/* Amount */}
+        <Input
+          type="number"
+          placeholder="Amount"
+          value={detail.amount}
+          onChange={(e) => {
+            const updated = [...formData.softexDetails];
+            updated[index].amount = e.target.value;
+            setFormData({ ...formData, softexDetails: updated });
+          }}
+        />
+
+        {/* MPR */}
+        <Input
+          placeholder="MPR"
+          value={detail.mpr}
+          onChange={(e) => {
+            const updated = [...formData.softexDetails];
+            updated[index].mpr = e.target.value;
+            setFormData({ ...formData, softexDetails: updated });
+          }}
+        />
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => removeArrayItem("softexDetails", index)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    ))}
+  </div>
+</div>
+
 
             {/* Financial Expenses */}
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-primary">Financial Expenses</h3>
+                <h3 className="text-lg font-semibold text-primary">Financial Revenue</h3>
                 <Button
                   type="button"
                   variant="outline"
@@ -245,40 +328,68 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
                   onClick={() => addArrayItem("financialExpenses")}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Expense
+                  Add
                 </Button>
               </div>
               <div className="space-y-3">
-                {formData.financialExpenses.map((expense, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={expense.year}
-                      onChange={(e) => updateArrayItem("financialExpenses", index, { ...expense, year: e.target.value })}
-                      placeholder="Year (e.g., 2024)"
-                      className="w-32"
-                    />
-                    <Input
-                      value={expense.amount}
-                      onChange={(e) => updateArrayItem("financialExpenses", index, { ...expense, amount: e.target.value })}
-                      placeholder="Amount (e.g., $10,000)"
-                      className="w-40"
-                    />
-                    <Input
-                      value={expense.description}
-                      onChange={(e) => updateArrayItem("financialExpenses", index, { ...expense, description: e.target.value })}
-                      placeholder="Month"
-                      className="flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeArrayItem("financialExpenses", index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
+     {formData.financialExpenses.map((item, index) => (
+  <div
+    key={index}
+    className="flex flex-col md:flex-row gap-2 mb-3 w-full"
+  >
+    {/* Year */}
+    <Input
+      type="text"
+      value={item.year}
+      placeholder="Year"
+      className="input w-full "
+      onChange={(e) => {
+        const updated = [...formData.financialExpenses];
+        updated[index].year = e.target.value;
+        setFormData({ ...formData, financialExpenses: updated });
+      }}
+    />
+
+    {/* Range Dropdown */}
+    <select
+      className="input w-full bg-gray-600 text-white"
+      value={
+        tariffTable.find((t) => t.label === item.amount)?.amount || ""
+      }
+      onChange={(e) => {
+        const selected = tariffTable.find(
+          (t) => t.amount === e.target.value
+        );
+
+        const updated = [...formData.financialExpenses];
+
+        updated[index].amount = selected?.label || ""; // store label
+        updated[index].description = selected?.description || ""; // charge
+
+        setFormData({ ...formData, financialExpenses: updated });
+      }}
+    >
+      <option value="">Select Range</option>
+      {tariffTable.map((t, i) => (
+        <option key={i} value={t.amount}>
+          {t.label}
+        </option>
+      ))}
+    </select>
+
+    {/* Service Charge auto */}
+    <Input
+      type="text"
+      value={item.description}
+      placeholder="Service Charge"
+      className="input w-full"
+     
+    />
+  </div>
+))}
+
+
+
               </div>
             </div>
 

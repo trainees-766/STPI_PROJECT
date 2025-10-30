@@ -6,6 +6,7 @@ const Unit = require("../models/Unit");
 router.get("/stpi", async (req, res) => {
   try {
     const units = await Unit.find({ type: "stpi" });
+    
     res.json(units);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -24,8 +25,6 @@ router.get("/non-stpi", async (req, res) => {
 
 // Create STPI unit
 router.post("/stpi", async (req, res) => {
-  console.log(req.body);
-
   try {
     const unit = new Unit({ ...req.body, type: "stpi" });
     await unit.save();

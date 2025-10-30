@@ -30,7 +30,12 @@ interface Unit {
   endDate: string;
   legalAgreements?: string[];
   aprReports: string[];
-  softexDetails: string[];
+ softexDetails: {
+  year: string;
+  month: string;
+  amount: string;
+  mpr: string;
+}[];
   financialExpenses: { year: string; amount: string; description: string }[];
 }
 
@@ -43,11 +48,37 @@ const EximPage = () => {
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewingUnit, setViewingUnit] = useState<Unit | null>(null);
-  const [filterMonth, setFilterMonth] = useState("");
-  const [filterYear, setFilterYear] = useState("");
-  const [filteredExpenses, setFilteredExpenses] = useState<
-    { year: string; amount: string; description: string }[]
-  >([]);
+  const [softexFilterYear, setSoftexFilterYear] = useState("");
+const [softexFilterMonth, setSoftexFilterMonth] = useState("");
+const [filteredSoftex, setFilteredSoftex] = useState<
+  { year: string; month: string; amount: string; mpr: string }[]
+>([]);
+useEffect(() => {
+  if (!viewingUnit?.softexDetails) {
+    setFilteredSoftex([]);
+    return;
+  }
+
+  let list = [...viewingUnit.softexDetails];
+
+  if (softexFilterYear) {
+    list = list.filter((s) => s.year === softexFilterYear);
+  }
+
+  if (softexFilterMonth) {
+    list = list.filter((s) => s.month === softexFilterMonth);
+  }
+
+  // optional: sort (latest year first, then month if you have numeric month)
+  list.sort((a, b) => {
+    const yearDiff = Number(b.year) - Number(a.year);
+    if (yearDiff !== 0) return yearDiff;
+    // try to sort month if months are numeric strings, else keep as-is
+    return (Number(b.month) || 0) - (Number(a.month) || 0);
+  });
+
+  setFilteredSoftex(list);
+}, [viewingUnit, softexFilterYear, softexFilterMonth]);
 
   const stpiLink =
     "https://onedrive.live.com/:x:/g/personal/48290514C262A261/EQyJdK9JxfxGj4Rv-c0uOBsBNc9EDPZAIzY-ghRP15lP2Q?resid=48290514C262A261!saf74890cc54946fc8f846ff9cd2e381b";
@@ -64,7 +95,8 @@ const EximPage = () => {
       const nonStpiRes = await fetch(`${API_BASE_URL}/exim/non-stpi`);
       const stpiData = await stpiRes.json();
       const nonStpiData = await nonStpiRes.json();
-
+      console.log(stpiData);
+      
       setStpiUnits(
         (Array.isArray(stpiData) ? stpiData : []).map((unit) => ({
           ...unit,
@@ -103,21 +135,7 @@ const EximPage = () => {
     }
   };
 
-  // Update filtered expenses when filters or viewed unit change
-  useEffect(() => {
-    if (viewingUnit) {
-     const filteredExpenses = (
-  viewingUnit?.financialExpenses?.filter((e) => {
-    const matchYear = filterYear ? e.year === filterYear : true;
-    const matchMonth = filterMonth ? e.description === filterMonth : true;
-    return matchYear && matchMonth;
-  }) ?? []
-).sort((a, b) => Number(b.year) - Number(a.year));
-      setFilteredExpenses(filteredExpenses);
-    } else {
-      setFilteredExpenses([]);
-    }
-  }, [filterYear, filterMonth, viewingUnit]);
+
 
   const handleAddUnit = async (unitData: Omit<Unit, "id">) => {
     try {
@@ -241,6 +259,7 @@ const EximPage = () => {
               </div>
 
               <div
+              key={key}
                 className="overflow-y-auto mt-4 pr-2"
                 style={{ maxHeight: "calc(100vh - 250px)" }}
               >
@@ -349,7 +368,7 @@ const EximPage = () => {
 
     {/* APR Reports */}
     <div>
-      <h4 className="font-semibold text-sky-600 mb-2">APR Reports</h4>
+      <h4 className="font-semibold text-sky-600 mb-2">APR Report</h4>
       {viewingUnit.aprReports?.length > 0 ? (
         <ul className="list-disc pl-5 space-y-1">
           {viewingUnit.aprReports.map((file, i) => (
@@ -366,32 +385,106 @@ const EximPage = () => {
           ))}
         </ul>
       ) : (
-        <p className="text-muted-foreground italic">No APR reports uploaded.</p>
+        <p className="text-muted-foreground italic">Null</p>
       )}
     </div>
 
     {/* Softex Details */}
-    <div>
-      <h4 className="font-semibold text-sky-600 mb-2">Softex Details</h4>
-      {viewingUnit.softexDetails?.length > 0 ? (
-        <ul className="list-disc pl-5 space-y-1">
-          {viewingUnit.softexDetails.map((file, i) => (
-            <li key={i}>
-              <a
-                href={file}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sky-700 hover:underline"
-              >
-                {file.split("/").pop()}
-              </a>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-muted-foreground italic">No Softex details available.</p>
+  {/* ✅ SOFTEX DETAILS */}
+{/* SOFTEX DETAILS with Year + Month filters */}
+<div>
+  <h4 className="font-semibold text-sky-600 mb-2">Softex Details</h4>
+
+  {/* Filters */}
+  <div className="flex gap-3 mb-3">
+    <select
+      className="input"
+      value={softexFilterYear}
+      onChange={(e) => setSoftexFilterYear(e.target.value)}
+    >
+      <option value="">Filter Year</option>
+      {[...new Set(viewingUnit?.softexDetails?.map((x) => x.year))].map(
+        (y, i) =>
+          y && (
+            <option key={i} value={y}>
+              {y}
+            </option>
+          )
       )}
+    </select>
+
+    <select
+      className="input"
+      value={softexFilterMonth}
+      onChange={(e) => setSoftexFilterMonth(e.target.value)}
+    >
+      <option value="">Filter Month</option>
+      {[...new Set(viewingUnit?.softexDetails?.map((x) => x.month))].map(
+        (m, i) =>
+          m && (
+            <option key={i} value={m}>
+              {m}
+            </option>
+          )
+      )}
+    </select>
+
+    {/* quick clear button */}
+    <button
+      type="button"
+      className="ml-2 px-3 py-1 text-sm rounded border"
+      onClick={() => {
+        setSoftexFilterYear("");
+        setSoftexFilterMonth("");
+      }}
+    >
+      Clear
+    </button>
+  </div>
+
+  {/* Table */}
+  {filteredSoftex?.length > 0 ? (
+    <div className="overflow-x-auto rounded-md border border-gray-200 shadow-sm">
+      <table className="w-full text-sm border-collapse">
+        <thead className="bg-sky-50 text-sky-700 font-semibold">
+          <tr>
+            <th className="px-4 py-2 text-left border-b">Year</th>
+            <th className="px-4 py-2 text-left border-b">Month</th>
+            <th className="px-4 py-2 text-left border-b">Amount (₹)</th>
+            <th className="px-4 py-2 text-left border-b">MPR</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {filteredSoftex.map((item, index) => (
+            <tr
+              key={index}
+              className="hover:bg-sky-50 transition-colors border-b last:border-0"
+            >
+              <td className="px-4 py-2">{item.year || "-"}</td>
+              <td className="px-4 py-2">{item.month || "-"}</td>
+              <td className="px-4 py-2 font-medium text-sky-700">
+                ₹{item.amount || "0"}
+              </td>
+              <td className="px-4 py-2">{item.mpr || "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="mt-2 font-semibold p-5 text-sky-700">
+        Total Softex: ₹
+        {filteredSoftex.reduce((t, s) => t + (parseFloat(s.amount) || 0), 0)}
+      </p>
     </div>
+    
+  ) : (
+    <p className="text-muted-foreground italic">
+      No Softex details available for selected filter
+    </p>
+  )}
+</div>
+
+
 
     {/* Financial Expenses Section */}
     <FinancialExpensesSection viewingUnit={viewingUnit} />
