@@ -21,8 +21,9 @@ import {
 } from "@/components/ui/dialog";
 import { CustomerForm } from "@/components/CustomerForm";
 import { useToast } from "@/hooks/use-toast";
+import { log } from "console";
 
-const API_BASE_URL = "http://10.1.2.138:5000/api"; 
+const API_BASE_URL = "http://localhost:5000/api"; 
 
 interface Customer {
   _id: string;
@@ -38,10 +39,35 @@ interface Customer {
   leaderDesignation: string;
   startDate: string;
   endDate: string;
-  ipDetails: string;
+  ipDetails: string | {
+    gateway?: string;
+    networkIp?: string;
+    startIp?: string;
+    lastIp?: string;
+    subnetMask?: string;
+  };
   bandwidth: string;
-  bridgeDetails: string;
+  bridgeDetails: string | {
+    stpi?: {
+      bridgeIp?: string;
+      frequency?: string;
+      ssid?: string;
+      wpa2PreSharedKey?: string;
+      peakRssi?: string;
+      channelBandwidth?: string;
+    };
+    customer?: {
+      bridgeIp?: string;
+      frequency?: string;
+      ssid?: string;
+      wpa2PreSharedKey?: string;
+      peakRssi?: string;
+      channelBandwidth?: string;
+    };
+  };
   prtgGraphLink: string;
+  servicePeriods?: { date: string; bandwidth: string }[];
+  bandwidthDetails?: { free: number; purchased: number; total: number };
 }
 
 const DatacomPage = () => {
@@ -51,6 +77,7 @@ const DatacomPage = () => {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [viewingCustomer, setViewingCustomer] = useState<Customer | null>(null);
+  const [showBridgeDialog, setShowBridgeDialog] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -61,9 +88,7 @@ const DatacomPage = () => {
     try {
       const rfResponse = await fetch(`${API_BASE_URL}/datacom/rf`);
       const lanResponse = await fetch(`${API_BASE_URL}/datacom/lan`);
-
       const rfData = await rfResponse.json();
-
       const lanData = await lanResponse.json();
       setRfCustomers(rfData);
       setLanCustomers(lanData);
@@ -76,7 +101,6 @@ const DatacomPage = () => {
       });
     }
   };
-
   const handleAddCustomer = async (customerData: Omit<Customer, "id">) => {
     try {
       const response = await fetch(`${API_BASE_URL}/datacom/${activeTab}`, {
@@ -198,6 +222,39 @@ const DatacomPage = () => {
   };
 
   const currentCustomers = activeTab === "rf" ? rfCustomers : lanCustomers;
+
+  // Parse possible key/value pairs from ipDetails into structured fields
+  const parseIpDetails = (ipDetails: any) => {
+    const result: {
+      gateway?: string;
+      networkIp?: string;
+      startIp?: string;
+      lastIp?: string;
+      subnetMask?: string;
+    } = {};
+    if (!ipDetails) return result;
+    if (typeof ipDetails === "object") {
+      return {
+        gateway: ipDetails.gateway || "",
+        networkIp: ipDetails.networkIp || "",
+        startIp: ipDetails.startIp || "",
+        lastIp: ipDetails.lastIp || "",
+        subnetMask: ipDetails.subnetMask || "",
+      };
+    }
+    const normalized = ipDetails.replace(/\n|;|\|/g, ",").toLowerCase();
+    const parts = normalized.split(",").map((p) => p.trim()).filter(Boolean);
+    for (const part of parts) {
+      const [k, v] = part.split(/[:=]/).map((s) => s?.trim());
+      if (!k || !v) continue;
+      if (k.includes("gate")) result.gateway = v;
+      else if (k.includes("network")) result.networkIp = v;
+      else if (k.includes("start")) result.startIp = v;
+      else if (k.includes("last") || k.includes("end")) result.lastIp = v;
+      else if (k.includes("mask") || k.includes("subnet")) result.subnetMask = v;
+    }
+    return result;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-accent/20 p-6">
@@ -487,7 +544,7 @@ const DatacomPage = () => {
                         {viewingCustomer.companyName}
                       </p>
                       <h3 className="font-semibold text-sky-600 mb-2">
-                        Manager Information
+                        Director/Management Information
                       </h3>
                       <div className="space-y-1 text-base">
                         <p>
@@ -511,7 +568,7 @@ const DatacomPage = () => {
 
                     <div>
                       <h3 className="font-semibold text-sky-600 mb-2">
-                        Leader Information
+                        System Admin Information
                       </h3>
                       <div className="space-y-1 text-base">
                         <p>
@@ -544,6 +601,22 @@ const DatacomPage = () => {
                           <span className="font-semibold">Start Date:</span>{" "}
                           {viewingCustomer.startDate}
                         </p>
+                        <p>
+                          <span className="font-semibold">End Date:</span>{" "}
+                          {viewingCustomer.endDate}
+                        </p>
+                        {Array.isArray(viewingCustomer.servicePeriods) && viewingCustomer.servicePeriods.length > 0 && (
+                          <div className="mt-2">
+                            <p className="font-semibold">Date → Bandwidth</p>
+                            <ul className="list-disc ml-5 mt-1 space-y-1">
+                              {viewingCustomer.servicePeriods.map((sp, idx) => (
+                                <li key={idx}>
+                                  {sp.date || "—"} → {sp.bandwidth || "—"}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -557,16 +630,84 @@ const DatacomPage = () => {
                           {viewingCustomer.bandwidth}
                         </p>
                         <p>
-                          <span className="font-semibold">IP Details:</span>{" "}
-                          {viewingCustomer.ipDetails}
+                          <span className="font-bold text-blue-600">IP Details:</span>{" "}
+                          
                         </p>
-                        <p>
-                          <span className="font-semibold">Bridge Details:</span>{" "}
-                          {viewingCustomer.bridgeDetails}
-                        </p>
+                        {/* IP Details subsection */}
+                        {(() => {
+                          const parsed = parseIpDetails(viewingCustomer.ipDetails);
+                          const hasAny =
+                            parsed.gateway ||
+                            parsed.networkIp ||
+                            parsed.startIp ||
+                            parsed.lastIp ||
+                            parsed.subnetMask;
+                          return hasAny ? (
+                            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {parsed.gateway && (
+                                <p>
+                                  <span className="font-semibold">Gateway:</span>{" "}
+                                  {parsed.gateway}
+                                </p>
+                              )}
+                              {parsed.networkIp && (
+                                <p>
+                                  <span className="font-semibold">Network IP:</span>{" "}
+                                  {parsed.networkIp}
+                                </p>
+                              )}
+                              {parsed.startIp && (
+                                <p>
+                                  <span className="font-semibold">Start IP:</span>{" "}
+                                  {parsed.startIp}
+                                </p>
+                              )}
+                              {parsed.lastIp && (
+                                <p>
+                                  <span className="font-semibold">Last IP:</span>{" "}
+                                  {parsed.lastIp}
+                                </p>
+                              )}
+                              {parsed.subnetMask && (
+                                <p>
+                                  <span className="font-semibold">Subnet Mask:</span>{" "}
+                                  {parsed.subnetMask}
+                                </p>
+                              )}
+                            </div>
+                          ) : null;
+                        })()}
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">Bridge Details:</span>
+                          <Button size="sm" variant="outline" onClick={() => setShowBridgeDialog(true)}>
+                            View Bridge Details
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
+                    {/* Bandwidth Details - separate section */}
+                    {viewingCustomer.bandwidthDetails && (
+                      <div>
+                        <h3 className="font-semibold text-sky-600 mb-2">
+                          Bandwidth Details
+                        </h3>
+                        <div className="space-y-1 text-base">
+                          <p>
+                            <span className="font-semibold">Total:</span>{" "}
+                            {viewingCustomer.bandwidthDetails.total}
+                          </p>
+                          <p>
+                            <span className="font-semibold">Free:</span>{" "}
+                            {viewingCustomer.bandwidthDetails.free}
+                          </p>
+                          <p>
+                            <span className="font-semibold">Purchased:</span>{" "}
+                            {viewingCustomer.bandwidthDetails.purchased}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     {viewingCustomer.prtgGraphLink && (
                       <div>
                         <h3 className="font-semibold text-sky-600 mb-2">
@@ -582,6 +723,41 @@ const DatacomPage = () => {
                         </a>
                       </div>
                     )}
+                    {/* Bridge Details Dialog */}
+                    <Dialog open={showBridgeDialog} onOpenChange={setShowBridgeDialog}>
+                      <DialogContent className="max-w-3xl">
+                        <DialogHeader>
+                          <DialogTitle>Bridge Details — {viewingCustomer.companyName}</DialogTitle>
+                        </DialogHeader>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <h4 className="font-semibold mb-2">STPI Side</h4>
+                            <div className="space-y-2">
+                              <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.stpi?.bridgeIp || '—'}</p>
+                              <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.frequency || '—'}</p>
+                              <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.ssid || '—'}</p>
+                              <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.wpa2PreSharedKey || '—'}</p>
+                              <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.peakRssi || '—'}</p>
+                              <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.channelBandwidth || '—'}</p>
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold mb-2">{viewingCustomer.companyName} Side</h4>
+                            <div className="space-y-2">
+                              <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.customer?.bridgeIp || '—'}</p>
+                              <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.frequency || '—'}</p>
+                              <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.ssid || '—'}</p>
+                              <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.wpa2PreSharedKey || '—'}</p>
+                              <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.peakRssi || '—'}</p>
+                              <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.channelBandwidth || '—'}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex justify-end mt-4">
+                          <Button variant="outline" onClick={() => setShowBridgeDialog(false)}>Close</Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               </div>

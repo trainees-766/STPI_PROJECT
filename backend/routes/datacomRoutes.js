@@ -7,7 +7,6 @@ router.get("/rf", async (req, res) => {
   try {
     const customers = await Customer.find({ section: "rf" });
     console.log(customers);
-
     res.json(customers);
   } catch (error) {
     res.status(500).json({ error: error.message });

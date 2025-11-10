@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { log } from "console";
 
 interface Customer {
@@ -19,10 +26,36 @@ interface Customer {
   leaderDesignation: string;
   startDate: string;
   endDate: string;
-  ipDetails: string;
+  ipDetails: {
+    gateway?: string;
+    networkIp?: string;
+    startIp?: string;
+    lastIp?: string;
+    subnetMask?: string;
+  };
   bandwidth: string;
-  bridgeDetails: string;
+  bridgeDetails: {
+    stpi?: {
+      bridgeIp?: string;
+      frequency?: string;
+      ssid?: string;
+      wpa2PreSharedKey?: string;
+      peakRssi?: string;
+      channelBandwidth?: string;
+    };
+    customer?: {
+      bridgeIp?: string;
+      frequency?: string;
+      ssid?: string;
+      wpa2PreSharedKey?: string;
+      peakRssi?: string;
+      channelBandwidth?: string;
+    };
+  };
   prtgGraphLink: string;
+  // New fields
+  servicePeriods?: { date: string; bandwidth: string }[];
+  bandwidthDetails?: { free: number; purchased: number; total: number };
 }
 
 interface CustomerFormProps {
@@ -48,10 +81,16 @@ export const CustomerForm = ({
     leaderDesignation: customer?.leaderDesignation || "",
     startDate: customer?.startDate || "",
     endDate: customer?.endDate || "XXXX",
-    ipDetails: customer?.ipDetails || "",
+  ipDetails: customer?.ipDetails || { gateway: "", networkIp: "", startIp: "", lastIp: "", subnetMask: "" },
     bandwidth: customer?.bandwidth || "",
-    bridgeDetails: customer?.bridgeDetails || "",
+  bridgeDetails: customer?.bridgeDetails || { stpi: { bridgeIp: "", frequency: "", ssid: "", wpa2PreSharedKey: "", peakRssi: "", channelBandwidth: "" }, customer: { bridgeIp: "", frequency: "", ssid: "", wpa2PreSharedKey: "", peakRssi: "", channelBandwidth: "" } },
     prtgGraphLink: customer?.prtgGraphLink || "",
+    servicePeriods: customer?.servicePeriods && customer.servicePeriods.length > 0
+      ? customer.servicePeriods
+      : [{ date: "", bandwidth: "" }],
+    bandwidthDetails: customer?.bandwidthDetails
+      ? customer.bandwidthDetails
+      : { free: 0, purchased: 0, total: 0 },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -61,6 +100,72 @@ export const CustomerForm = ({
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleIpChange = (
+    field: "gateway" | "networkIp" | "startIp" | "lastIp" | "subnetMask",
+    value: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      ipDetails: { ...(prev.ipDetails || {}), [field]: value },
+    }));
+  };
+
+  const handleServicePeriodChange = (index: number, field: "date" | "bandwidth", value: string) => {
+    setFormData((prev) => {
+      const next = [...(prev.servicePeriods || [])];
+      next[index] = { ...next[index], [field]: value };
+      return { ...prev, servicePeriods: next };
+    });
+  };
+
+  const [bridgeDialogOpen, setBridgeDialogOpen] = useState(false);
+
+  const handleBridgeChange = (
+    side: "stpi" | "customer",
+    field:
+      | "bridgeIp"
+      | "frequency"
+      | "ssid"
+      | "wpa2PreSharedKey"
+      | "peakRssi"
+      | "channelBandwidth",
+    value: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      bridgeDetails: {
+        ...(prev.bridgeDetails || {}),
+        [side]: { ...(prev.bridgeDetails?.[side] || {}), [field]: value },
+      },
+    }));
+  };
+
+  const addServicePeriodRow = () => {
+    setFormData((prev) => {
+      const next = [...(prev.servicePeriods || [])];
+      next.push({ date: "", bandwidth: "" });
+      return { ...prev, servicePeriods: next };
+    });
+  };
+
+  const removeServicePeriodRow = (index: number) => {
+    setFormData((prev) => {
+      const next = [...(prev.servicePeriods || [])];
+      next.splice(index, 1);
+      return { ...prev, servicePeriods: next.length ? next : [{ date: "", bandwidth: "" }] };
+    });
+  };
+
+  const handleBandwidthDetailsChange = (field: "free" | "purchased", value: string) => {
+    const numeric = Number(value);
+    setFormData((prev) => {
+      const current = prev.bandwidthDetails || { free: 0, purchased: 0, total: 0 };
+      const updated = { ...current, [field]: isNaN(numeric) ? 0 : numeric };
+      updated.total = (Number(updated.free) || 0) + (Number(updated.purchased) || 0);
+      return { ...prev, bandwidthDetails: updated };
+    });
   };
 
   return (
@@ -216,14 +321,54 @@ export const CustomerForm = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="ipDetails">IP Details *</Label>
-                  <Input
-                    id="ipDetails"
-                    value={formData.ipDetails}
-                    onChange={(e) => handleChange("ipDetails", e.target.value)}
-                    placeholder="e.g., 192.168.1.100/24"
-                    required
-                  />
+                  <Label htmlFor="ipDetails">IP Details</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="gateway">Gateway</Label>
+                      <Input
+                        id="gateway"
+                        value={formData.ipDetails.gateway}
+                        onChange={(e) => handleIpChange("gateway", e.target.value)}
+                        placeholder="e.g., 192.168.1.1"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="networkIp">Network IP</Label>
+                      <Input
+                        id="networkIp"
+                        value={formData.ipDetails.networkIp}
+                        onChange={(e) => handleIpChange("networkIp", e.target.value)}
+                        placeholder="e.g., 192.168.1.0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="startIp">Start IP</Label>
+                      <Input
+                        id="startIp"
+                        value={formData.ipDetails.startIp}
+                        onChange={(e) => handleIpChange("startIp", e.target.value)}
+                        placeholder="e.g., 192.168.1.100"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastIp">Last IP</Label>
+                      <Input
+                        id="lastIp"
+                        value={formData.ipDetails.lastIp}
+                        onChange={(e) => handleIpChange("lastIp", e.target.value)}
+                        placeholder="e.g., 192.168.1.150"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="subnetMask">Subnet Mask</Label>
+                      <Input
+                        id="subnetMask"
+                        value={formData.ipDetails.subnetMask}
+                        onChange={(e) => handleIpChange("subnetMask", e.target.value)}
+                        placeholder="e.g., 255.255.255.0"
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bandwidth">Bandwidth *</Label>
@@ -237,14 +382,98 @@ export const CustomerForm = ({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bridgeDetails">Bridge Details</Label>
-                  <Input
-                    id="bridgeDetails"
-                    value={formData.bridgeDetails}
-                    onChange={(e) =>
-                      handleChange("bridgeDetails", e.target.value)
-                    }
-                    placeholder="Bridge configuration details"
-                  />
+                  <div className="flex items-center gap-2">
+                    <Button type="button" onClick={() => setBridgeDialogOpen(true)}>
+                      Edit Bridge Details
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {formData.bridgeDetails?.stpi?.bridgeIp || "—"}
+                      {formData.bridgeDetails?.customer?.bridgeIp ? ` · ${formData.bridgeDetails.customer.bridgeIp}` : ""}
+                    </span>
+                  </div>
+
+                  <Dialog open={bridgeDialogOpen} onOpenChange={setBridgeDialogOpen}>
+                    <DialogContent className="max-w-3xl">
+                      <DialogHeader>
+                        <DialogTitle>Bridge Details</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="font-semibold mb-2">STPI Side</h4>
+                          <div className="space-y-2">
+                            <Label>Bridge IP</Label>
+                            <Input
+                              value={formData.bridgeDetails?.stpi?.bridgeIp || ""}
+                              onChange={(e) => handleBridgeChange("stpi", "bridgeIp", e.target.value)}
+                            />
+                            <Label>Frequency</Label>
+                            <Input
+                              value={formData.bridgeDetails?.stpi?.frequency || ""}
+                              onChange={(e) => handleBridgeChange("stpi", "frequency", e.target.value)}
+                            />
+                            <Label>SSID</Label>
+                            <Input
+                              value={formData.bridgeDetails?.stpi?.ssid || ""}
+                              onChange={(e) => handleBridgeChange("stpi", "ssid", e.target.value)}
+                            />
+                            <Label>WPA2 Pre-Shared Key</Label>
+                            <Input
+                              value={formData.bridgeDetails?.stpi?.wpa2PreSharedKey || ""}
+                              onChange={(e) => handleBridgeChange("stpi", "wpa2PreSharedKey", e.target.value)}
+                            />
+                            <Label>Peak RSSI</Label>
+                            <Input
+                              value={formData.bridgeDetails?.stpi?.peakRssi || ""}
+                              onChange={(e) => handleBridgeChange("stpi", "peakRssi", e.target.value)}
+                            />
+                            <Label>Channel Bandwidth</Label>
+                            <Input
+                              value={formData.bridgeDetails?.stpi?.channelBandwidth || ""}
+                              onChange={(e) => handleBridgeChange("stpi", "channelBandwidth", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-2">Customer Side</h4>
+                          <div className="space-y-2">
+                            <Label>Bridge IP</Label>
+                            <Input
+                              value={formData.bridgeDetails?.customer?.bridgeIp || ""}
+                              onChange={(e) => handleBridgeChange("customer", "bridgeIp", e.target.value)}
+                            />
+                            <Label>Frequency</Label>
+                            <Input
+                              value={formData.bridgeDetails?.customer?.frequency || ""}
+                              onChange={(e) => handleBridgeChange("customer", "frequency", e.target.value)}
+                            />
+                            <Label>SSID</Label>
+                            <Input
+                              value={formData.bridgeDetails?.customer?.ssid || ""}
+                              onChange={(e) => handleBridgeChange("customer", "ssid", e.target.value)}
+                            />
+                            <Label>WPA2 Pre-Shared Key</Label>
+                            <Input
+                              value={formData.bridgeDetails?.customer?.wpa2PreSharedKey || ""}
+                              onChange={(e) => handleBridgeChange("customer", "wpa2PreSharedKey", e.target.value)}
+                            />
+                            <Label>Peak RSSI</Label>
+                            <Input
+                              value={formData.bridgeDetails?.customer?.peakRssi || ""}
+                              onChange={(e) => handleBridgeChange("customer", "peakRssi", e.target.value)}
+                            />
+                            <Label>Channel Bandwidth</Label>
+                            <Input
+                              value={formData.bridgeDetails?.customer?.channelBandwidth || ""}
+                              onChange={(e) => handleBridgeChange("customer", "channelBandwidth", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 mt-4">
+                        <Button variant="outline" onClick={() => setBridgeDialogOpen(false)}>Close</Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="prtgGraphLink">PRTG Graph Link</Label>
@@ -257,6 +486,81 @@ export const CustomerForm = ({
                     }
                     placeholder="https://..."
                   />
+                </div>
+              </div>
+
+              {/* Service Period - Dynamic rows: date -> bandwidth */}
+              <div className="mt-6 space-y-3">
+                <h4 className="text-md font-semibold text-primary">Service Period</h4>
+                <div className="space-y-3">
+                  {(formData.servicePeriods || []).map((row, index) => (
+                    <div key={index} className="grid md:grid-cols-3 gap-3 items-end">
+                      <div className="space-y-2">
+                        <Label htmlFor={`serviceDate-${index}`}>Date</Label>
+                        <Input
+                          id={`serviceDate-${index}`}
+                          type="date"
+                          value={row.date}
+                          onChange={(e) => handleServicePeriodChange(index, "date", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`serviceBandwidth-${index}`}>Bandwidth</Label>
+                        <Input
+                          id={`serviceBandwidth-${index}`}
+                          placeholder="e.g., 50 Mbps"
+                          value={row.bandwidth}
+                          onChange={(e) => handleServicePeriodChange(index, "bandwidth", e.target.value)}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button type="button" variant="outline" onClick={() => removeServicePeriodRow(index)}>
+                          Remove
+                        </Button>
+                        {index === (formData.servicePeriods?.length || 0) - 1 && (
+                          <Button type="button" onClick={addServicePeriodRow}>
+                            Add Row
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bandwidth Details - free, purchased, total */}
+              <div className="mt-6 space-y-3">
+                <h4 className="text-md font-semibold text-primary">Bandwidth Details</h4>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bwFree">Free</Label>
+                    <Input
+                      id="bwFree"
+                      type="number"
+                      value={formData.bandwidthDetails?.free ?? 0}
+                      onChange={(e) => handleBandwidthDetailsChange("free", e.target.value)}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bwPurchased">Purchased</Label>
+                    <Input
+                      id="bwPurchased"
+                      type="number"
+                      value={formData.bandwidthDetails?.purchased ?? 0}
+                      onChange={(e) => handleBandwidthDetailsChange("purchased", e.target.value)}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bwTotal">Total</Label>
+                    <Input
+                      id="bwTotal"
+                      type="number"
+                      value={formData.bandwidthDetails?.total ?? 0}
+                      readOnly
+                    />
+                  </div>
                 </div>
               </div>
             </div>

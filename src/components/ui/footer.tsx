@@ -36,6 +36,7 @@ const Footer = () => {
 
         <div className="text-sm text-muted-foreground">
          &copy; {new Date().getFullYear()} STPI — All rights reserved To STPI Kakinada
+         <p className="text-blue-600"> created by Ameer, Pavan, Ahmed, Srinivas, Sai (APT 2nd Batch) </p>
         </div>
       </div>
     </footer>

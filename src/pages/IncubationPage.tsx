@@ -24,9 +24,32 @@ interface IncubationCustomer {
   leaderDesignation: string;
   startDate: string;
   endDate: string;
-  ipDetails: string;
+  ipDetails: string | {
+    gateway?: string;
+    networkIp?: string;
+    startIp?: string;
+    lastIp?: string;
+    subnetMask?: string;
+  };
   bandwidth: string;
-  bridgeDetails: string;
+  bridgeDetails: string | {
+    stpi?: {
+      bridgeIp?: string;
+      frequency?: string;
+      ssid?: string;
+      wpa2PreSharedKey?: string;
+      peakRssi?: string;
+      channelBandwidth?: string;
+    };
+    customer?: {
+      bridgeIp?: string;
+      frequency?: string;
+      ssid?: string;
+      wpa2PreSharedKey?: string;
+      peakRssi?: string;
+      channelBandwidth?: string;
+    };
+  };
   prtgGraphLink: string;
 }
 
@@ -39,6 +62,7 @@ const IncubationPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [viewingCustomer, setViewingCustomer] =
     useState<IncubationCustomer | null>(null);
+  const [showBridgeDialog, setShowBridgeDialog] = useState(false);
 
   // Fetch customers on mount
   useEffect(() => {
@@ -329,16 +353,62 @@ const IncubationPage = () => {
                       <div className="space-y-1 text-base">
                         <p>
                           <span className="font-semibold">IP Details:</span>{" "}
-                          {viewingCustomer.ipDetails}
+                          {typeof viewingCustomer.ipDetails === "string"
+                            ? viewingCustomer.ipDetails
+                            : [
+                                viewingCustomer.ipDetails.networkIp,
+                                viewingCustomer.ipDetails.startIp,
+                                viewingCustomer.ipDetails.lastIp,
+                                viewingCustomer.ipDetails.gateway,
+                              ]
+                                .filter(Boolean)
+                                .join(", ")}
                         </p>
                         <p>
                           <span className="font-semibold">Bandwidth:</span>{" "}
                           {viewingCustomer.bandwidth}
                         </p>
-                        <p>
-                          <span className="font-semibold">Bridge Details:</span>{" "}
-                          {viewingCustomer.bridgeDetails}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">Bridge Details:</span>
+                          <Button size="sm" variant="outline" onClick={() => setShowBridgeDialog(true)}>
+                            View Bridge Details
+                          </Button>
+                        </div>
+
+                        <Dialog open={showBridgeDialog} onOpenChange={setShowBridgeDialog}>
+                          <DialogContent className="max-w-3xl">
+                            <DialogHeader>
+                              <DialogTitle>Bridge Details — {viewingCustomer.companyName}</DialogTitle>
+                            </DialogHeader>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div>
+                                <h4 className="font-semibold mb-2">STPI Side</h4>
+                                <div className="space-y-2">
+                                  <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.stpi?.bridgeIp || '—'}</p>
+                                  <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.frequency || '—'}</p>
+                                  <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.ssid || '—'}</p>
+                                  <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.wpa2PreSharedKey || '—'}</p>
+                                  <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.peakRssi || '—'}</p>
+                                  <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.channelBandwidth || '—'}</p>
+                                </div>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold mb-2">{viewingCustomer.companyName} Side</h4>
+                                <div className="space-y-2">
+                                  <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.customer?.bridgeIp || '—'}</p>
+                                  <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.frequency || '—'}</p>
+                                  <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.ssid || '—'}</p>
+                                  <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.wpa2PreSharedKey || '—'}</p>
+                                  <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.peakRssi || '—'}</p>
+                                  <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.channelBandwidth || '—'}</p>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex justify-end mt-4">
+                              <Button variant="outline" onClick={() => setShowBridgeDialog(false)}>Close</Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </div>
