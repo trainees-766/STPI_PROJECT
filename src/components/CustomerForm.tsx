@@ -64,7 +64,11 @@ export const CustomerForm = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+    style={{
+      margin : 0
+    }}
+    >
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-card-hover animate-scale-in">
         <CardHeader className="flex-row justify-between items-center pb-4">
           <CardTitle className="text-xl">

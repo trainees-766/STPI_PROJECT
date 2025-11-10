@@ -326,8 +326,9 @@ useEffect(() => {
         )}
 
         {/* View Unit Dialog */}
-        <Dialog open={!!viewingUnit} onOpenChange={() => setViewingUnit(null)}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <Dialog 
+        open={!!viewingUnit} onOpenChange={() => setViewingUnit(null)}>
+          <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-sky-600">
                 Unit Details
@@ -444,14 +445,14 @@ useEffect(() => {
 
   {/* Table */}
   {filteredSoftex?.length > 0 ? (
-    <div className="overflow-x-auto rounded-md border border-gray-200 shadow-sm">
+    <div className="overflow-auto max-h-60 rounded-md border border-gray-200 shadow-sm">
       <table className="w-full text-sm border-collapse">
         <thead className="bg-sky-50 text-sky-700 font-semibold">
           <tr>
             <th className="px-4 py-2 text-left border-b">Year</th>
             <th className="px-4 py-2 text-left border-b">Month</th>
-            <th className="px-4 py-2 text-left border-b">Amount (₹)</th>
-            <th className="px-4 py-2 text-left border-b">MPR</th>
+            <th className="px-4 py-2 text-left border-b">Softex Amount (₹ in lakhs)</th>
+            <th className="px-4 py-2 text-left border-b">MPR Amount(₹ in lakhs)</th>
           </tr>
         </thead>
 
@@ -471,10 +472,24 @@ useEffect(() => {
           ))}
         </tbody>
       </table>
+      <div className="flex">
       <p className="mt-2 font-semibold p-5 text-sky-700">
         Total Softex: ₹
-        {filteredSoftex.reduce((t, s) => t + (parseFloat(s.amount) || 0), 0)}
+      {
+  filteredSoftex
+    .reduce((t, s) => t + (parseFloat(s.amount) || 0), 0)
+    .toFixed(3)
+}
       </p>
+      <p className="mt-2 font-semibold p-5 text-sky-700">
+        Total Mpr: ₹
+       {
+  filteredSoftex
+    .reduce((t, s) => t + (Number(s.mpr) || 0), 0)
+    .toFixed(3)
+}
+      </p>
+      </div>
     </div>
     
   ) : (

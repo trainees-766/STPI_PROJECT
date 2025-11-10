@@ -29,7 +29,7 @@ export default function FinancialExpensesSection({ viewingUnit }) {
   return (
     <div>
       <h4 className="font-semibold text-sky-600 mb-3">
-        Financial Expenses
+        Financial Revenue
       </h4>
 
       {/* Filters */}
@@ -63,12 +63,12 @@ export default function FinancialExpensesSection({ viewingUnit }) {
 
       {/* Table */}
       <div className="overflow-x-auto rounded-md border border-gray-200 shadow-sm">
-        <table className="w-full text-sm border-collapse">
+        <table className="w-full text-sm border-collapse max-h-60">
           <thead className="bg-sky-50 text-sky-700 font-semibold">
             <tr>
               <th className="px-4 py-2 text-left border-b">Year</th>
               <th className="px-4 py-2 text-left border-b">Slab</th>
-              <th className="px-4 py-2 text-left border-b">Service Charges (₹)</th>
+              <th className="px-4 py-2 text-left border-b">Revenue (₹)</th>
             </tr>
           </thead>
           <tbody>

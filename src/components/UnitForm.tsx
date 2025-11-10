@@ -35,6 +35,7 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
     financialExpenses: unit?.financialExpenses || [{ year: "", amount: "", description: "" }],
   });
 
+  const [revenue, setRevenue] = useState("")
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -117,7 +118,11 @@ const handleRangeSelect = (index, selectedValue) => {
 
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+    style={{
+      margin : 0
+    }}
+    >
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-card-hover animate-scale-in">
         <CardHeader className="flex-row justify-between items-center pb-4">
           <CardTitle className="text-xl">
@@ -167,231 +172,109 @@ const handleRangeSelect = (index, selectedValue) => {
             </div>
 
             {/* Legal Agreements (STPI only) */}
-            {isStpi && formData.legalAgreements && (
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-primary">Legal Agreements</h3>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => addArrayItem("legalAgreements")}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Agreement
-                  </Button>
-                </div>
-                <div className="space-y-3">
-                  {formData.legalAgreements.map((agreement, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Input
-                        value={agreement}
-                        onChange={(e) => updateArrayItem("legalAgreements", index, e.target.value)}
-                        placeholder="Legal agreement document/reference"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeArrayItem("legalAgreements", index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+           {isStpi && formData.legalAgreements && (
+<div className="space-y-4">
+<div className="flex justify-between items-center sticky top-0 bg-white py-2 z-20 border-b">
+<h3 className="text-lg font-semibold text-primary">LOP</h3>
+<Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("legalAgreements")}>Add LOP</Button>
+</div>
+<div className="max-h-56 overflow-y-auto pr-2 space-y-3">
+{formData.legalAgreements.map((agreement, index) => (
+<div key={index} className="flex gap-2 sticky pl-2 pr-2 pt-1 pb-1">
+<Input
+value={agreement}
+onChange={(e) => updateArrayItem("legalAgreements", index, e.target.value)}
+placeholder="Legal agreement"
+/>
+<Button type="button" variant="outline" size="sm" onClick={() => removeArrayItem("legalAgreements", index)}>❌</Button>
+</div>
+))}
+</div>
+</div>
+)}
 
             {/* APR Reports */}
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-primary">APR Reports</h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addArrayItem("aprReports")}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Report
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {formData.aprReports.map((report, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={report}
-                      onChange={(e) => updateArrayItem("aprReports", index, e.target.value)}
-                      placeholder="APR report document/reference"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeArrayItem("aprReports", index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
+<div className="flex justify-between items-center sticky top-0 bg-white py-2 z-20 border-b">
+<h3 className="text-lg font-semibold text-primary">APR Report</h3>
+<Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("aprReports")}>
+Add
+</Button>
+</div>
+
+
+<div className="max-h-56 overflow-y-auto pr-2 space-y-3">
+{formData.aprReports.map((report, index) => (
+<div key={index} className="flex gap-2 pl-2 pr-2 pt-1 pb-1">
+<Input
+value={report}
+onChange={(e) => updateArrayItem("aprReports", index, e.target.value)}
+placeholder="APR reference"
+/>
+<Button type="button" variant="outline" size="sm" onClick={() => removeArrayItem("aprReports", index)}>❌</Button>
+</div>
+))}
+</div>
+</div>
 
             {/* Softex Details */}
           {/* Softex Details */}
 <div className="space-y-4">
-  <div className="flex justify-between items-center">
-    <h3 className="text-lg font-semibold text-primary">Softex Details</h3>
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      onClick={() => addArrayItem("softexDetails")}
-    >
-      <Plus className="h-4 w-4 mr-2" />
-      Add Detail
-    </Button>
-  </div>
-
-  <div className="space-y-3">
-    {formData.softexDetails.map((detail, index) => (
-      <div key={index} className="flex flex-col md:flex-row gap-2 w-full items-center">
-
-        {/* Year */}
-        <Input
-          placeholder="Year"
-          value={detail.year}
-          onChange={(e) => {
-            const updated = [...formData.softexDetails];
-            updated[index].year = e.target.value;
-            setFormData({ ...formData, softexDetails: updated });
-          }}
-        />
-
-        {/* Month */}
-        <Input
-          placeholder="Month"
-          value={detail.month}
-          onChange={(e) => {
-            const updated = [...formData.softexDetails];
-            updated[index].month = e.target.value;
-            setFormData({ ...formData, softexDetails: updated });
-          }}
-        />
-
-        {/* Amount */}
-        <Input
-          type="number"
-          placeholder="Amount"
-          value={detail.amount}
-          onChange={(e) => {
-            const updated = [...formData.softexDetails];
-            updated[index].amount = e.target.value;
-            setFormData({ ...formData, softexDetails: updated });
-          }}
-        />
-
-        {/* MPR */}
-        <Input
-          placeholder="MPR"
-          value={detail.mpr}
-          onChange={(e) => {
-            const updated = [...formData.softexDetails];
-            updated[index].mpr = e.target.value;
-            setFormData({ ...formData, softexDetails: updated });
-          }}
-        />
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => removeArrayItem("softexDetails", index)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      </div>
-    ))}
-  </div>
+<div className="flex justify-between items-center sticky top-0 z-20 bg-white border-b py-2">
+<h3 className="text-lg font-semibold text-primary">Softex Details</h3>
+<Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("softexDetails")}>
+Add Detail
+</Button>
 </div>
 
 
-            {/* Financial Expenses */}
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-primary">Financial Revenue</h3>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addArrayItem("financialExpenses")}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add
-                </Button>
-              </div>
-              <div className="space-y-3">
-     {formData.financialExpenses.map((item, index) => (
-  <div
-    key={index}
-    className="flex flex-col md:flex-row gap-2 mb-3 w-full"
-  >
-    {/* Year */}
-    <Input
-      type="text"
-      value={item.year}
-      placeholder="Year"
-      className="input w-full "
-      onChange={(e) => {
-        const updated = [...formData.financialExpenses];
-        updated[index].year = e.target.value;
-        setFormData({ ...formData, financialExpenses: updated });
-      }}
-    />
-
-    {/* Range Dropdown */}
-    <select
-      className="input w-full bg-gray-600 text-white"
-      value={
-        tariffTable.find((t) => t.label === item.amount)?.amount || ""
-      }
-      onChange={(e) => {
-        const selected = tariffTable.find(
-          (t) => t.amount === e.target.value
-        );
-
-        const updated = [...formData.financialExpenses];
-
-        updated[index].amount = selected?.label || ""; // store label
-        updated[index].description = selected?.description || ""; // charge
-
-        setFormData({ ...formData, financialExpenses: updated });
-      }}
-    >
-      <option value="">Select Range</option>
-      {tariffTable.map((t, i) => (
-        <option key={i} value={t.amount}>
-          {t.label}
-        </option>
-      ))}
-    </select>
-
-    {/* Service Charge auto */}
-    <Input
-      type="text"
-      value={item.description}
-      placeholder="Service Charge"
-      className="input w-full"
-     
-    />
-  </div>
+<div className="max-h-56 overflow-y-auto pr-2 space-y-3">
+{formData.softexDetails.map((detail, index) => (
+<div key={index} className="flex flex-col md:flex-row gap-2 pl-2 pr-2 pt-1 pb-1 items-center">
+<Input placeholder="Year" value={detail.year} onChange={(e)=>{const u=[...formData.softexDetails];u[index].year=e.target.value;setFormData({...formData,softexDetails:u})}} />
+<Input placeholder="Month" value={detail.month} onChange={(e)=>{const u=[...formData.softexDetails];u[index].month=e.target.value;setFormData({...formData,softexDetails:u})}} />
+<Input type="text" placeholder="Amount" value={detail.amount} onChange={(e)=>{const u=[...formData.softexDetails];u[index].amount=e.target.value;setFormData({...formData,softexDetails:u})}} />
+<Input placeholder="MPR" value={detail.mpr} onChange={(e)=>{const u=[...formData.softexDetails];u[index].mpr=e.target.value;setFormData({...formData,softexDetails:u})}} />
+<Button type="button" variant="outline" size="sm" onClick={() => removeArrayItem("softexDetails", index)}>❌</Button>
+</div>
 ))}
+</div>
+</div>
+
+            {/* Financial Expenses */}
+        <div className="space-y-4">
+<div className="flex justify-between items-center sticky top-0 bg-white py-2 border-b z-20">
+<h3 className="text-lg font-semibold text-primary">Financial Revenue</h3>
+<Button type="button" variant="outline" size="sm" onClick={() => addArrayItem("financialExpenses")}>Add</Button>
+</div>
 
 
+<div className="max-h-56 overflow-y-auto pr-2 space-y-3">
+{formData.financialExpenses.map((item, index) => (
+<div key={index} className="flex flex-col md:flex-row gap-2 pl-2 pr-2 pt-1 pb-1">
+<Input type="text" value={item.year} placeholder="Year" onChange={(e)=>{const u=[...formData.financialExpenses];u[index].year=e.target.value;setFormData({...formData,financialExpenses:u})}} />
 
-              </div>
-            </div>
+
+<select className="input w-full bg-gray-600 text-white" value={tariffTable.find((t)=>t.label===item.amount)?.amount || ""} onChange={(e)=>{
+const selected = tariffTable.find((t)=>t.amount===e.target.value);
+const u=[...formData.financialExpenses];
+u[index].amount = selected?.label || "";
+u[index].description = selected?.description || "";
+setFormData({...formData,financialExpenses:u});
+}}>
+<option value="">Select Slab</option>
+{tariffTable.map((t) => (<option key={t.amount} value={t.amount}>{t.label}</option>))}
+</select>
+
+
+<Input type="text" value={item.description} placeholder="Revenue" />
+
+
+<Button type="button" variant="outline" size="sm" onClick={() => removeArrayItem("financialExpenses", index)}>❌</Button>
+</div>
+))}
+</div>
+</div>
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-6">

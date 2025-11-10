@@ -204,8 +204,8 @@ const IncubationPage = () => {
                 >
                   <CardHeader className="pb-2">
                     <div className="grid grid-cols-1 md:grid-cols-1 items-center">
-                      <div className="flex justify-center md:justify-start">
-                        <div className="w-11/12 md:w-1/2 text-center md:text-left">
+                      <div className="flex">
+                        <div className="w-11/12 md:w-full text-center md:text-left">
                           <CardTitle className="text-lg flex items-center gap-2 font-semibold">
                             <Lightbulb className="h-5 w-5 text-sky-600" />
                             {customer.companyName}
