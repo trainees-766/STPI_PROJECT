@@ -51,9 +51,11 @@ interface IncubationCustomer {
     };
   };
   prtgGraphLink: string;
+  servicePeriods?: { date: string; bandwidth: string }[];
+  bandwidthDetails?: { free: number; purchased: number; total: number };
 }
 
-const API_BASE_URL = "http://10.1.2.138:5000/api"; 
+const API_BASE_URL = "http://localhost:5000/api"; 
 
 const IncubationPage = () => {
   const [customers, setCustomers] = useState<IncubationCustomer[]>([]);
@@ -83,6 +85,57 @@ const IncubationPage = () => {
       console.error("Error fetching incubation customers:", error);
     }
   };
+
+  // Parse possible key/value pairs from ipDetails into structured fields (same logic as DatacomPage)
+  const parseIpDetails = (ipDetails: any) => {
+    const result: {
+      gateway?: string;
+      networkIp?: string;
+      startIp?: string;
+      lastIp?: string;
+      subnetMask?: string;
+    } = {};
+    if (!ipDetails) return result;
+    if (typeof ipDetails === "object") {
+      return {
+        gateway: ipDetails.gateway || "",
+        networkIp: ipDetails.networkIp || "",
+        startIp: ipDetails.startIp || "",
+        lastIp: ipDetails.lastIp || "",
+        subnetMask: ipDetails.subnetMask || "",
+      };
+    }
+    const normalized = ipDetails.replace(/\n|;|\|/g, ",").toLowerCase();
+    const parts = normalized.split(",").map((p) => p.trim()).filter(Boolean);
+    for (const part of parts) {
+      const [k, v] = part.split(/[:=]/).map((s) => s?.trim());
+      if (!k || !v) continue;
+      if (k.includes("gate")) result.gateway = v;
+      else if (k.includes("network")) result.networkIp = v;
+      else if (k.includes("start")) result.startIp = v;
+      else if (k.includes("last") || k.includes("end")) result.lastIp = v;
+      else if (k.includes("mask") || k.includes("subnet")) result.subnetMask = v;
+    }
+    return result;
+  };
+
+  // Prepare editing customer object for CustomerForm (convert legacy strings to expected objects)
+  const editingCustomerForForm = editingCustomer
+    ? {
+        ...editingCustomer,
+        ipDetails:
+          typeof editingCustomer.ipDetails === "string"
+            ? parseIpDetails(editingCustomer.ipDetails)
+            : editingCustomer.ipDetails,
+        bridgeDetails:
+          typeof editingCustomer.bridgeDetails === "string"
+            ? {
+                stpi: { bridgeIp: editingCustomer.bridgeDetails || "", frequency: "", ssid: "", wpa2PreSharedKey: "", peakRssi: "", channelBandwidth: "" },
+                customer: { bridgeIp: "", frequency: "", ssid: "", wpa2PreSharedKey: "", peakRssi: "", channelBandwidth: "" },
+              }
+            : editingCustomer.bridgeDetails,
+      }
+    : null;
 
   const handleAddCustomer = async (
     customerData: Omit<IncubationCustomer, "id">
@@ -145,7 +198,7 @@ const IncubationPage = () => {
   };
 
   const handleDeleteCustomer = async (id: string) => {
-    let ok = confirm("ARE YOU SURE ?");
+    const ok = confirm("ARE YOU SURE ?");
     if (!ok) {
       return;
     }
@@ -305,7 +358,7 @@ const IncubationPage = () => {
           open={!!viewingCustomer}
           onOpenChange={() => setViewingCustomer(null)}
         >
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-7xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-sky-600">
                 Customer Details
@@ -313,18 +366,18 @@ const IncubationPage = () => {
             </DialogHeader>
             {viewingCustomer && (
               <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-3 gap-6">
                   <div className="space-y-4">
                     <div>
                       <h3 className="font-semibold text-sky-600">
-                        Company Name
+                        Customer Name
                       </h3>
                       <p>
                         <span className="font-semibold">Name:</span>{" "}
                         {viewingCustomer.companyName}
                       </p>
                       <h3 className="font-semibold text-sky-600 mb-2">
-                        Manager Information
+                        Director/Management Information
                       </h3>
                       <div className="space-y-1 text-base">
                         <p>
@@ -348,75 +401,7 @@ const IncubationPage = () => {
 
                     <div>
                       <h3 className="font-semibold text-sky-600 mb-2">
-                        Technical Details
-                      </h3>
-                      <div className="space-y-1 text-base">
-                        <p>
-                          <span className="font-semibold">IP Details:</span>{" "}
-                          {typeof viewingCustomer.ipDetails === "string"
-                            ? viewingCustomer.ipDetails
-                            : [
-                                viewingCustomer.ipDetails.networkIp,
-                                viewingCustomer.ipDetails.startIp,
-                                viewingCustomer.ipDetails.lastIp,
-                                viewingCustomer.ipDetails.gateway,
-                              ]
-                                .filter(Boolean)
-                                .join(", ")}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Bandwidth:</span>{" "}
-                          {viewingCustomer.bandwidth}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">Bridge Details:</span>
-                          <Button size="sm" variant="outline" onClick={() => setShowBridgeDialog(true)}>
-                            View Bridge Details
-                          </Button>
-                        </div>
-
-                        <Dialog open={showBridgeDialog} onOpenChange={setShowBridgeDialog}>
-                          <DialogContent className="max-w-3xl">
-                            <DialogHeader>
-                              <DialogTitle>Bridge Details — {viewingCustomer.companyName}</DialogTitle>
-                            </DialogHeader>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              <div>
-                                <h4 className="font-semibold mb-2">STPI Side</h4>
-                                <div className="space-y-2">
-                                  <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.stpi?.bridgeIp || '—'}</p>
-                                  <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.frequency || '—'}</p>
-                                  <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.ssid || '—'}</p>
-                                  <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.wpa2PreSharedKey || '—'}</p>
-                                  <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.peakRssi || '—'}</p>
-                                  <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.channelBandwidth || '—'}</p>
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="font-semibold mb-2">{viewingCustomer.companyName} Side</h4>
-                                <div className="space-y-2">
-                                  <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.customer?.bridgeIp || '—'}</p>
-                                  <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.frequency || '—'}</p>
-                                  <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.ssid || '—'}</p>
-                                  <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.wpa2PreSharedKey || '—'}</p>
-                                  <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.peakRssi || '—'}</p>
-                                  <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.channelBandwidth || '—'}</p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex justify-end mt-4">
-                              <Button variant="outline" onClick={() => setShowBridgeDialog(false)}>Close</Button>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-sky-600 mb-2">
-                        Leader Information
+                        System Admin Information
                       </h3>
                       <div className="space-y-1 text-base">
                         <p>
@@ -437,9 +422,12 @@ const IncubationPage = () => {
                         </p>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="space-y-4">
                     <div>
                       <h3 className="font-semibold text-sky-600 mb-2">
-                        Project Timeline
+                        Service Period
                       </h3>
                       <div className="space-y-1 text-base">
                         <p>
@@ -450,23 +438,161 @@ const IncubationPage = () => {
                           <span className="font-semibold">End Date:</span>{" "}
                           {viewingCustomer.endDate}
                         </p>
+                        {Array.isArray(viewingCustomer.servicePeriods) && viewingCustomer.servicePeriods.length > 0 && (
+                          <div className="mt-2">
+                            <p className="font-semibold">Date → Bandwidth</p>
+                            <ul className="list-disc ml-5 mt-1 space-y-1">
+                              {viewingCustomer.servicePeriods.map((sp, idx) => (
+                                <li key={idx}>
+                                  {sp.date || "—"} → {sp.bandwidth || "—"}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-sky-600 mb-2">
+                        Technical Details
+                      </h3>
+                      <div className="space-y-1 text-base">
+                        <p>
+                          <span className="font-semibold">Bandwidth:</span>{" "}
+                          {viewingCustomer.bandwidth}
+                        </p>
+                        <p>
+                          <span className="font-bold text-blue-600">IP Details:</span>{" "}
+                          
+                        </p>
+                        {/* IP Details subsection */}
+                        {(() => {
+                          const parsed = parseIpDetails(viewingCustomer.ipDetails);
+                          const hasAny =
+                            parsed.gateway ||
+                            parsed.networkIp ||
+                            parsed.startIp ||
+                            parsed.lastIp ||
+                            parsed.subnetMask;
+                          return hasAny ? (
+                            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {parsed.gateway && (
+                                <p>
+                                  <span className="font-semibold">Gateway:</span>{" "}
+                                  {parsed.gateway}
+                                </p>
+                              )}
+                              {parsed.networkIp && (
+                                <p>
+                                  <span className="font-semibold">Network IP:</span>{" "}
+                                  {parsed.networkIp}
+                                </p>
+                              )}
+                              {parsed.startIp && (
+                                <p>
+                                  <span className="font-semibold">Start IP:</span>{" "}
+                                  {parsed.startIp}
+                                </p>
+                              )}
+                              {parsed.lastIp && (
+                                <p>
+                                  <span className="font-semibold">Last IP:</span>{" "}
+                                  {parsed.lastIp}
+                                </p>
+                              )}
+                              {parsed.subnetMask && (
+                                <p>
+                                  <span className="font-semibold">Subnet Mask:</span>{" "}
+                                  {parsed.subnetMask}
+                                </p>
+                              )}
+                            </div>
+                          ) : null;
+                        })()}
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">Bridge Details:</span>
+                          <Button size="sm" variant="outline" onClick={() => setShowBridgeDialog(true)}>
+                            View Bridge Details
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                        <div>
+                        {viewingCustomer.bandwidthDetails && (
+                          <div>
+                            <h3 className="font-semibold text-sky-600 mb-2">
+                              Bandwidth Details
+                            </h3>
+                            <div className="space-y-1 text-base">
+                              <p>
+                                <span className="font-semibold">Total:</span>{" "}
+                                {viewingCustomer.bandwidthDetails.total}
+                              </p>
+                              <p>
+                                <span className="font-semibold">Free:</span>{" "}
+                                {viewingCustomer.bandwidthDetails.free}
+                              </p>
+                              <p>
+                                <span className="font-semibold">Purchased:</span>{" "}
+                                {viewingCustomer.bandwidthDetails.purchased}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                         {viewingCustomer.prtgGraphLink && (
-                          <p>
-                            <span className="font-semibold">PRTG Graph:</span>
+                          <div>
+                            <h3 className="font-semibold text-sky-600 mb-2">
+                              Monitoring
+                            </h3>
                             <a
                               href={viewingCustomer.prtgGraphLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-sky-600 hover:underline ml-1"
+                              className="text-base text-sky-600 hover:underline ml-1"
                             >
-                              View Graph
+                              View Graph -
                             </a>
-                          </p>
+                          </div>
                         )}
+                        </div>
+                </div>
+                {/* Bridge Details Dialog */}
+                <Dialog open={showBridgeDialog} onOpenChange={setShowBridgeDialog}>
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-blue-600 text-2xl font-bold">Bridge Details — {viewingCustomer.companyName}</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold mb-2 text-primary">STPI Side</h4>
+                        <div className="space-y-2">
+                          <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.stpi?.bridgeIp || '—'}</p>
+                          <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.frequency || '—'}</p>
+                          <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.ssid || '—'}</p>
+                          <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.wpa2PreSharedKey || '—'}</p>
+                          <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.peakRssi || '—'}</p>
+                          <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.channelBandwidth || '—'}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2 text-primary">{viewingCustomer.companyName} Side</h4>
+                        <div className="space-y-2">
+                          <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.customer?.bridgeIp || '—'}</p>
+                          <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.frequency || '—'}</p>
+                          <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.ssid || '—'}</p>
+                          <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.wpa2PreSharedKey || '—'}</p>
+                          <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.peakRssi || '—'}</p>
+                          <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.channelBandwidth || '—'}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                    <div className="flex justify-end mt-4">
+                      <Button variant="outline" onClick={() => setShowBridgeDialog(false)}>Close</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
           </DialogContent>
@@ -475,7 +601,7 @@ const IncubationPage = () => {
         {/* Customer Form */}
         {showForm && (
           <CustomerForm
-            customer={editingCustomer}
+            customer={editingCustomer ? editingCustomerForForm : null}
             onSubmit={editingCustomer ? handleEditCustomer : handleAddCustomer}
             onCancel={() => {
               setShowForm(false);
