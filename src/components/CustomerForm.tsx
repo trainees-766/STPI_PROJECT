@@ -201,7 +201,7 @@ export const CustomerForm = ({
                 />
               </div>
               <h3 className="text-lg font-semibold text-primary">
-                Manager Details
+                Director/Manager details
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -255,7 +255,7 @@ export const CustomerForm = ({
             {/* Leader Details */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-primary">
-                Leader Details
+                System Administrator details
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -395,11 +395,11 @@ export const CustomerForm = ({
                   <Dialog open={bridgeDialogOpen} onOpenChange={setBridgeDialogOpen}>
                     <DialogContent className="max-w-3xl">
                       <DialogHeader>
-                        <DialogTitle>Bridge Details</DialogTitle>
+                        <DialogTitle className="text-blue-600 text-3xl ">Bridge Details</DialogTitle>
                       </DialogHeader>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <h4 className="font-semibold mb-2">STPI Side</h4>
+                          <h4 className="font-semibold mb-2 text-primary">STPI Side</h4>
                           <div className="space-y-2">
                             <Label>Bridge IP</Label>
                             <Input
@@ -434,7 +434,7 @@ export const CustomerForm = ({
                           </div>
                         </div>
                         <div>
-                          <h4 className="font-semibold mb-2">Customer Side</h4>
+                          <h4 className="font-semibold mb-2 text-primary">Customer Side</h4>
                           <div className="space-y-2">
                             <Label>Bridge IP</Label>
                             <Input

@@ -525,7 +525,7 @@ const DatacomPage = () => {
           open={!!viewingCustomer}
           onOpenChange={() => setViewingCustomer(null)}
         >
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-7xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-sky-600">
                 Customer Details
@@ -533,7 +533,7 @@ const DatacomPage = () => {
             </DialogHeader>
             {viewingCustomer && (
               <div className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-3 gap-6">
                   <div className="space-y-4">
                     <div>
                       <h3 className="font-semibold text-sky-600">
@@ -685,8 +685,9 @@ const DatacomPage = () => {
                         </div>
                       </div>
                     </div>
-
+</div>
                     {/* Bandwidth Details - separate section */}
+                    <div>
                     {viewingCustomer.bandwidthDetails && (
                       <div>
                         <h3 className="font-semibold text-sky-600 mb-2">
@@ -723,15 +724,16 @@ const DatacomPage = () => {
                         </a>
                       </div>
                     )}
+                    </div>  
                     {/* Bridge Details Dialog */}
                     <Dialog open={showBridgeDialog} onOpenChange={setShowBridgeDialog}>
                       <DialogContent className="max-w-3xl">
                         <DialogHeader>
-                          <DialogTitle>Bridge Details — {viewingCustomer.companyName}</DialogTitle>
+                          <DialogTitle className="text-blue-600 text-2xl font-bold">Bridge Details — {viewingCustomer.companyName}</DialogTitle>
                         </DialogHeader>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
-                            <h4 className="font-semibold mb-2">STPI Side</h4>
+                            <h4 className="font-semibold mb-2 text-primary">STPI Side</h4>
                             <div className="space-y-2">
                               <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.stpi?.bridgeIp || '—'}</p>
                               <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.frequency || '—'}</p>
@@ -742,7 +744,7 @@ const DatacomPage = () => {
                             </div>
                           </div>
                           <div>
-                            <h4 className="font-semibold mb-2">{viewingCustomer.companyName} Side</h4>
+                            <h4 className="font-semibold mb-2 text-primary">{viewingCustomer.companyName} Side</h4>
                             <div className="space-y-2">
                               <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.customer?.bridgeIp || '—'}</p>
                               <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.frequency || '—'}</p>
@@ -758,7 +760,7 @@ const DatacomPage = () => {
                         </div>
                       </DialogContent>
                     </Dialog>
-                  </div>
+                  
                 </div>
               </div>
             )}

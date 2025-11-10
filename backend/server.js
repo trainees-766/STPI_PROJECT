@@ -2,7 +2,9 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-require("dotenv").config();
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const app = express();
 
@@ -11,9 +13,10 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const dbUrl = process.env.MONGODB_URI;
 // MongoDB Connection
 mongoose
-  .connect("mongodb://10.1.2.100:27017/STPIKKD_CUSTOMERS_DATABASE", {
+  .connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
