@@ -68,6 +68,8 @@ interface Customer {
   prtgGraphLink: string;
   servicePeriods?: { date: string; bandwidth: string }[];
   bandwidthDetails?: { free: number; purchased: number; total: number };
+  routerDetails?: { name: string; port: string }[];
+  pathDiagram?: string;
 }
 
 const DatacomPage = () => {
@@ -525,93 +527,69 @@ const DatacomPage = () => {
           open={!!viewingCustomer}
           onOpenChange={() => setViewingCustomer(null)}
         >
-          <DialogContent className="max-w-7xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-sky-600">
-                Customer Details
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-b from-slate-50 to-white">
+            <DialogHeader className="bg-gradient-to-r from-sky-600 to-sky-700 px-6 py-4 rounded-lg -mx-6 -mt-6 mb-4">
+              <DialogTitle className="text-3xl font-bold text-primary">
+                {viewingCustomer?.companyName} - Customer Details
               </DialogTitle>
             </DialogHeader>
             {viewingCustomer && (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-3 gap-6">
+              <div className="space-y-6 px-2">
+                
+                {/* Company Header Card */}
+                <div className="bg-gradient-to-r from-blue-50 to-sky-50 border-2 border-sky-300 rounded-lg p-5">
+                  <h2 className="text-xl font-bold text-sky-700 mb-3">Company Information</h2>
+                  <p className="text-lg"><span className="font-bold text-gray-700">Name :</span> <span className="text-sky-700 font-semibold">{viewingCustomer.companyName}</span></p>
+                </div>
+
+                {/* Main Grid - 2 Columns */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Left Column */}
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-sky-600">
-                        Customer Name
+                    {/* Director/Management Card */}
+                    <div className="bg-white border-2 border-orange-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                      <h3 className="text-lg font-bold text-orange-600 mb-4 flex items-center gap-2">
+                        <span className="text-2xl">👤</span> Director/Manager Details
                       </h3>
-                      <p>
-                        <span className="font-semibold">Name:</span>{" "}
-                        {viewingCustomer.companyName}
-                      </p>
-                      <h3 className="font-semibold text-sky-600 mb-2">
-                        Director/Management Information
-                      </h3>
-                      <div className="space-y-1 text-base">
-                        <p>
-                          <span className="font-semibold">Name:</span>{" "}
-                          {viewingCustomer.managerName}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Designation:</span>{" "}
-                          {viewingCustomer.managerDesignation}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Email:</span>{" "}
-                          {viewingCustomer.managerEmail}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Phone:</span>{" "}
-                          {viewingCustomer.managerPhone}
-                        </p>
+                      <div className="space-y-3 ml-2">
+                        <p className="text-base"><span className="font-semibold text-gray-700">Name:</span> <span className="text-gray-900">{viewingCustomer.managerName}</span></p>
+                        <p className="text-base"><span className="font-semibold text-gray-700">Designation:</span> <span className="text-gray-900">{viewingCustomer.managerDesignation}</span></p>
+                        <p className="text-base"><span className="font-semibold text-gray-700">Email:</span> <span className="text-blue-600">{viewingCustomer.managerEmail}</span></p>
+                        <p className="text-base"><span className="font-semibold text-gray-700">Phone:</span> <span className="text-gray-900">{viewingCustomer.managerPhone}</span></p>
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="font-semibold text-sky-600 mb-2">
-                        System Admin Information
+                    {/* System Admin Card */}
+                    <div className="bg-white border-2 border-purple-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                      <h3 className="text-lg font-bold text-purple-600 mb-4 flex items-center gap-2">
+                        <span className="text-2xl">⚙️</span> System Admin
                       </h3>
-                      <div className="space-y-1 text-base">
-                        <p>
-                          <span className="font-semibold">Name:</span>{" "}
-                          {viewingCustomer.leaderName}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Designation:</span>{" "}
-                          {viewingCustomer.leaderDesignation}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Email:</span>{" "}
-                          {viewingCustomer.leaderEmail}
-                        </p>
-                        <p>
-                          <span className="font-semibold">Phone:</span>{" "}
-                          {viewingCustomer.leaderPhone}
-                        </p>
+                      <div className="space-y-3 ml-2">
+                        <p className="text-base"><span className="font-semibold text-gray-700">Name:</span> <span className="text-gray-900">{viewingCustomer.leaderName}</span></p>
+                        <p className="text-base"><span className="font-semibold text-gray-700">Designation:</span> <span className="text-gray-900">{viewingCustomer.leaderDesignation}</span></p>
+                        <p className="text-base"><span className="font-semibold text-gray-700">Email:</span> <span className="text-blue-600">{viewingCustomer.leaderEmail}</span></p>
+                        <p className="text-base"><span className="font-semibold text-gray-700">Phone:</span> <span className="text-gray-900">{viewingCustomer.leaderPhone}</span></p>
                       </div>
                     </div>
                   </div>
 
+                  {/* Right Column */}
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-sky-600 mb-2">
-                        Service Period
+                    {/* Service Period Card */}
+                    <div className="bg-white border-2 border-green-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                      <h3 className="text-lg font-bold text-green-600 mb-4 flex items-center gap-2">
+                        <span className="text-2xl">📅</span> Service Period
                       </h3>
-                      <div className="space-y-1 text-base">
-                        <p>
-                          <span className="font-semibold">Start Date:</span>{" "}
-                          {viewingCustomer.startDate}
-                        </p>
-                        <p>
-                          <span className="font-semibold">End Date:</span>{" "}
-                          {viewingCustomer.endDate}
-                        </p>
+                      <div className="space-y-3 ml-2">
+                        <p className="text-base"><span className="font-semibold text-gray-700">Start Date:</span> <span className="text-gray-900">{viewingCustomer.startDate}</span></p>
+                        <p className="text-base"><span className="font-semibold text-gray-700">End Date:</span> <span className="text-gray-900">{viewingCustomer.endDate}</span></p>
                         {Array.isArray(viewingCustomer.servicePeriods) && viewingCustomer.servicePeriods.length > 0 && (
-                          <div className="mt-2">
-                            <p className="font-semibold">Date → Bandwidth</p>
-                            <ul className="list-disc ml-5 mt-1 space-y-1">
+                          <div className="mt-3 pt-3 border-t border-green-100">
+                            <p className="font-semibold text-gray-700 mb-2">Service History:</p>
+                            <ul className="space-y-2">
                               {viewingCustomer.servicePeriods.map((sp, idx) => (
-                                <li key={idx}>
-                                  {sp.date || "—"} → {sp.bandwidth || "—"}
+                                <li key={idx} className="text-base bg-green-50 px-3 py-2 rounded">
+                                  <span className="font-semibold">{sp.date}</span> → <span className="text-green-700 font-semibold">{sp.bandwidth}</span>
                                 </li>
                               ))}
                             </ul>
@@ -620,148 +598,183 @@ const DatacomPage = () => {
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="font-semibold text-sky-600 mb-2">
-                        Technical Details
+                    {/* Technical Details Card */}
+                    <div className="bg-white border-2 border-indigo-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                      <h3 className="text-lg font-bold text-indigo-600 mb-4 flex items-center gap-2">
+                        <span className="text-2xl">🔧</span> Technical Details
                       </h3>
-                      <div className="space-y-1 text-base">
-                        <p>
-                          <span className="font-semibold">Bandwidth:</span>{" "}
-                          {viewingCustomer.bandwidth}
-                        </p>
-                        <p>
-                          <span className="font-bold text-blue-600">IP Details:</span>{" "}
-                          
-                        </p>
-                        {/* IP Details subsection */}
-                        {(() => {
-                          const parsed = parseIpDetails(viewingCustomer.ipDetails);
-                          const hasAny =
-                            parsed.gateway ||
-                            parsed.networkIp ||
-                            parsed.startIp ||
-                            parsed.lastIp ||
-                            parsed.subnetMask;
-                          return hasAny ? (
-                            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                              {parsed.gateway && (
-                                <p>
-                                  <span className="font-semibold">Gateway:</span>{" "}
-                                  {parsed.gateway}
-                                </p>
-                              )}
-                              {parsed.networkIp && (
-                                <p>
-                                  <span className="font-semibold">Network IP:</span>{" "}
-                                  {parsed.networkIp}
-                                </p>
-                              )}
-                              {parsed.startIp && (
-                                <p>
-                                  <span className="font-semibold">Start IP:</span>{" "}
-                                  {parsed.startIp}
-                                </p>
-                              )}
-                              {parsed.lastIp && (
-                                <p>
-                                  <span className="font-semibold">Last IP:</span>{" "}
-                                  {parsed.lastIp}
-                                </p>
-                              )}
-                              {parsed.subnetMask && (
-                                <p>
-                                  <span className="font-semibold">Subnet Mask:</span>{" "}
-                                  {parsed.subnetMask}
-                                </p>
-                              )}
-                            </div>
-                          ) : null;
-                        })()}
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">Bridge Details:</span>
-                          <Button size="sm" variant="outline" onClick={() => setShowBridgeDialog(true)}>
-                            View Bridge Details
-                          </Button>
+                      <div className="space-y-3 ml-2">
+                        <p className="text-base"><span className="font-semibold text-gray-700">Bandwidth:</span> <span className="text-indigo-700 font-semibold">{viewingCustomer.bandwidth}</span></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* IP Details Card */}
+                <div className="bg-white border-2 border-cyan-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <h3 className="text-lg font-bold text-cyan-600 mb-4 flex items-center gap-2">
+                    <span className="text-2xl">🌐</span> IP Pool Details
+                  </h3>
+                  {(() => {
+                    const parsed = parseIpDetails(viewingCustomer.ipDetails);
+                    const hasAny = parsed.gateway || parsed.networkIp || parsed.startIp || parsed.lastIp || parsed.subnetMask;
+                    return hasAny ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 ml-2">
+                        {parsed.gateway && (
+                          <div className="bg-cyan-50 p-3 rounded border border-cyan-200">
+                            <p className="font-semibold text-gray-700 text-sm">Gateway</p>
+                            <p className="text-cyan-700 font-semibold">{parsed.gateway}</p>
+                          </div>
+                        )}
+                        {parsed.networkIp && (
+                          <div className="bg-cyan-50 p-3 rounded border border-cyan-200">
+                            <p className="font-semibold text-gray-700 text-sm">Network IP</p>
+                            <p className="text-cyan-700 font-semibold">{parsed.networkIp}</p>
+                          </div>
+                        )}
+                        {parsed.startIp && (
+                          <div className="bg-cyan-50 p-3 rounded border border-cyan-200">
+                            <p className="font-semibold text-gray-700 text-sm">Start IP</p>
+                            <p className="text-cyan-700 font-semibold">{parsed.startIp}</p>
+                          </div>
+                        )}
+                        {parsed.lastIp && (
+                          <div className="bg-cyan-50 p-3 rounded border border-cyan-200">
+                            <p className="font-semibold text-gray-700 text-sm">Last IP</p>
+                            <p className="text-cyan-700 font-semibold">{parsed.lastIp}</p>
+                          </div>
+                        )}
+                        {parsed.subnetMask && (
+                          <div className="bg-cyan-50 p-3 rounded border border-cyan-200">
+                            <p className="font-semibold text-gray-700 text-sm">Subnet Mask</p>
+                            <p className="text-cyan-700 font-semibold">{parsed.subnetMask}</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : null;
+                  })()}
+                  <div className="mt-4 ml-2">
+                    <Button size="sm" variant="outline" onClick={() => setShowBridgeDialog(true)} className="border-2 border-cyan-300 hover:bg-cyan-50">
+                      View Bridge Details
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Bandwidth Details Card */}
+                {viewingCustomer.bandwidthDetails && (
+                  <div className="bg-white border-2 border-pink-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <h3 className="text-lg font-bold text-pink-600 mb-4 flex items-center gap-2">
+                      <span className="text-2xl">📊</span> Bandwidth Details
+                    </h3>
+                    <div className="grid grid-cols-3 gap-4 ml-2">
+                      <div className="bg-pink-50 p-4 rounded-lg border border-pink-200 text-center">
+                        <p className="font-semibold text-gray-700 text-sm mb-1">Total</p>
+                        <p className="text-2xl font-bold text-pink-600">{viewingCustomer.bandwidthDetails.total}</p>
+                      </div>
+                      <div className="bg-green-50 p-4 rounded-lg border border-green-200 text-center">
+                        <p className="font-semibold text-gray-700 text-sm mb-1">Free</p>
+                        <p className="text-2xl font-bold text-green-600">{viewingCustomer.bandwidthDetails.free}</p>
+                      </div>
+                      <div className="bg-orange-50 p-4 rounded-lg border border-orange-200 text-center">
+                        <p className="font-semibold text-gray-700 text-sm mb-1">Purchased</p>
+                        <p className="text-2xl font-bold text-orange-600">{viewingCustomer.bandwidthDetails.purchased}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Router Details Section - HIGHLIGHTED */}
+                {(viewingCustomer.routerDetails && Array.isArray(viewingCustomer.routerDetails) && viewingCustomer.routerDetails.length > 0) || viewingCustomer.pathDiagram ? (
+                  <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-4 border-orange-400 rounded-xl p-6 shadow-lg">
+                    <h3 className="text-2xl font-bold text-orange-700 mb-5 flex items-center gap-2">
+                      <span className="text-3xl">🌉</span> Router & Network Configuration
+                    </h3>
+                    <div className="space-y-5 ml-2">
+                      {viewingCustomer.routerDetails && Array.isArray(viewingCustomer.routerDetails) && viewingCustomer.routerDetails.length > 0 && (
+                        <div>
+                          <p className="font-bold text-lg text-orange-700 mb-3">📱 Network Devices:</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {viewingCustomer.routerDetails.map((router, idx) => (
+                              <div key={idx} className="bg-white p-4 rounded-lg border-2 border-orange-300 shadow-md hover:shadow-lg transition-shadow">
+                                <div className="flex items-start gap-3">
+                                  <span className="text-2xl">🖥️</span>
+                                  <div className="flex-1">
+                                    <p className="text-base font-bold text-gray-800">Device #{idx + 1}</p>
+                                    <p className="text-base mt-2"><span className="font-semibold text-gray-700">Name:</span> <span className="text-orange-700 font-semibold">{router.name || "—"}</span></p>
+                                    <p className="text-base"><span className="font-semibold text-gray-700">Port:</span> <span className="text-orange-700 font-semibold font-mono">{router.port || "—"}</span></p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {viewingCustomer.pathDiagram && (
+                        <div className="pt-4 border-t-2 border-orange-300">
+                          <p className="font-bold text-lg text-orange-700 mb-3">🛣️ Network Path Diagram:</p>
+                          <div className="bg-white p-5 rounded-lg border-2 border-orange-300 shadow-md">
+                            <p className="text-base font-mono text-gray-800 whitespace-pre-wrap leading-relaxed">
+                              {viewingCustomer.pathDiagram}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
+
+                {/* Monitoring Card */}
+                {viewingCustomer.prtgGraphLink && (
+                  <div className="bg-white border-2 border-blue-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+                    <h3 className="text-lg font-bold text-blue-600 mb-4 flex items-center gap-2">
+                      <span className="text-2xl">📈</span> Monitoring
+                    </h3>
+                    <a
+                      href={viewingCustomer.prtgGraphLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block px-5 py-2 bg-blue-600 text-primary font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      📊 View PRTG Graph →
+                    </a>
+                  </div>
+                )}
+
+                {/* Bridge Details Dialog */}
+                <Dialog open={showBridgeDialog} onOpenChange={setShowBridgeDialog}>
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle className="text-blue-600 text-2xl font-bold">Bridge Details — {viewingCustomer.companyName}</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold mb-2 text-primary">STPI Side</h4>
+                        <div className="space-y-2">
+                          <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.stpi?.bridgeIp || '—'}</p>
+                          <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.frequency || '—'}</p>
+                          <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.ssid || '—'}</p>
+                          <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.wpa2PreSharedKey || '—'}</p>
+                          <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.peakRssi || '—'}</p>
+                          <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.channelBandwidth || '—'}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2 text-primary">{viewingCustomer.companyName} Side</h4>
+                        <div className="space-y-2">
+                          <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.customer?.bridgeIp || '—'}</p>
+                          <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.frequency || '—'}</p>
+                          <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.ssid || '—'}</p>
+                          <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.wpa2PreSharedKey || '—'}</p>
+                          <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.peakRssi || '—'}</p>
+                          <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.channelBandwidth || '—'}</p>
                         </div>
                       </div>
                     </div>
-</div>
-                    {/* Bandwidth Details - separate section */}
-                    <div>
-                    {viewingCustomer.bandwidthDetails && (
-                      <div>
-                        <h3 className="font-semibold text-sky-600 mb-2">
-                          Bandwidth Details
-                        </h3>
-                        <div className="space-y-1 text-base">
-                          <p>
-                            <span className="font-semibold">Total:</span>{" "}
-                            {viewingCustomer.bandwidthDetails.total}
-                          </p>
-                          <p>
-                            <span className="font-semibold">Free:</span>{" "}
-                            {viewingCustomer.bandwidthDetails.free}
-                          </p>
-                          <p>
-                            <span className="font-semibold">Purchased:</span>{" "}
-                            {viewingCustomer.bandwidthDetails.purchased}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    {viewingCustomer.prtgGraphLink && (
-                      <div>
-                        <h3 className="font-semibold text-sky-600 mb-2">
-                          Monitoring
-                        </h3>
-                        <a
-                          href={viewingCustomer.prtgGraphLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-base text-sky-600 hover:underline"
-                        >
-                          View PRTG Graph →
-                        </a>
-                      </div>
-                    )}
-                    </div>  
-                    {/* Bridge Details Dialog */}
-                    <Dialog open={showBridgeDialog} onOpenChange={setShowBridgeDialog}>
-                      <DialogContent className="max-w-3xl">
-                        <DialogHeader>
-                          <DialogTitle className="text-blue-600 text-2xl font-bold">Bridge Details — {viewingCustomer.companyName}</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <h4 className="font-semibold mb-2 text-primary">STPI Side</h4>
-                            <div className="space-y-2">
-                              <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.stpi?.bridgeIp || '—'}</p>
-                              <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.frequency || '—'}</p>
-                              <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.ssid || '—'}</p>
-                              <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.wpa2PreSharedKey || '—'}</p>
-                              <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.peakRssi || '—'}</p>
-                              <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.stpi?.channelBandwidth || '—'}</p>
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="font-semibold mb-2 text-primary">{viewingCustomer.companyName} Side</h4>
-                            <div className="space-y-2">
-                              <p><span className="font-semibold">Bridge IP:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? viewingCustomer.bridgeDetails : viewingCustomer.bridgeDetails?.customer?.bridgeIp || '—'}</p>
-                              <p><span className="font-semibold">Frequency:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.frequency || '—'}</p>
-                              <p><span className="font-semibold">SSID:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.ssid || '—'}</p>
-                              <p><span className="font-semibold">WPA2 Pre-Shared Key:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.wpa2PreSharedKey || '—'}</p>
-                              <p><span className="font-semibold">Peak RSSI:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.peakRssi || '—'}</p>
-                              <p><span className="font-semibold">Channel Bandwidth:</span> {typeof viewingCustomer.bridgeDetails === 'string' ? '—' : viewingCustomer.bridgeDetails?.customer?.channelBandwidth || '—'}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex justify-end mt-4">
-                          <Button variant="outline" onClick={() => setShowBridgeDialog(false)}>Close</Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  
-                </div>
+                    <div className="flex justify-end mt-4">
+                      <Button variant="outline" onClick={() => setShowBridgeDialog(false)}>Close</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
           </DialogContent>

@@ -53,6 +53,9 @@ interface Customer {
     };
   };
   prtgGraphLink: string;
+  // Router and path information
+  routerDetails?: { name: string; port: string }[];
+  pathDiagram?: string;
   // New fields
   servicePeriods?: { date: string; bandwidth: string }[];
   bandwidthDetails?: { free: number; purchased: number; total: number };
@@ -85,6 +88,8 @@ export const CustomerForm = ({
     bandwidth: customer?.bandwidth || "",
   bridgeDetails: customer?.bridgeDetails || { stpi: { bridgeIp: "", frequency: "", ssid: "", wpa2PreSharedKey: "", peakRssi: "", channelBandwidth: "" }, customer: { bridgeIp: "", frequency: "", ssid: "", wpa2PreSharedKey: "", peakRssi: "", channelBandwidth: "" } },
     prtgGraphLink: customer?.prtgGraphLink || "",
+    routerDetails: customer?.routerDetails && customer.routerDetails.length > 0 ? customer.routerDetails : [{ name: "", port: "" }],
+    pathDiagram: customer?.pathDiagram || "",
     servicePeriods: customer?.servicePeriods && customer.servicePeriods.length > 0
       ? customer.servicePeriods
       : [{ date: "", bandwidth: "" }],
@@ -165,6 +170,27 @@ export const CustomerForm = ({
       const updated = { ...current, [field]: isNaN(numeric) ? 0 : numeric };
       updated.total = (Number(updated.free) || 0) + (Number(updated.purchased) || 0);
       return { ...prev, bandwidthDetails: updated };
+    });
+  };
+
+  // Router details handlers
+  const handleRouterChange = (index: number, field: "name" | "port", value: string) => {
+    setFormData((prev) => {
+      const next = [...(prev.routerDetails || [])];
+      next[index] = { ...next[index], [field]: value };
+      return { ...prev, routerDetails: next };
+    });
+  };
+
+  const addRouterRow = () => {
+    setFormData((prev) => ({ ...prev, routerDetails: [...(prev.routerDetails || []), { name: "", port: "" }] }));
+  };
+
+  const removeRouterRow = (index: number) => {
+    setFormData((prev) => {
+      const next = [...(prev.routerDetails || [])];
+      next.splice(index, 1);
+      return { ...prev, routerDetails: next.length ? next : [{ name: "", port: "" }] };
     });
   };
 
@@ -566,6 +592,54 @@ export const CustomerForm = ({
             </div>
 
             {/* Action Buttons */}
+              {/* Router Details - placed below Bandwidth Details and above Monitoring */}
+              <div className="mt-6 space-y-3">
+                <h4 className="text-md font-semibold text-primary">Router Details</h4>
+                <div className="space-y-3">
+                  {(formData.routerDetails || []).map((r, idx) => (
+                    <div key={idx} className="grid md:grid-cols-3 gap-3 items-end">
+                      <div className="space-y-2">
+                        <Label>Router / Device Name</Label>
+                        <Input
+                          value={r.name}
+                          placeholder="e.g., L2 Switch, Juniper backbone"
+                          onChange={(e) => handleRouterChange(idx, "name", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Port</Label>
+                        <Input
+                          value={r.port}
+                          placeholder="e.g., ge/0/34"
+                          onChange={(e) => handleRouterChange(idx, "port", e.target.value)}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button type="button" variant="outline" onClick={() => removeRouterRow(idx)}>
+                          Remove
+                        </Button>
+                        {idx === (formData.routerDetails?.length || 0) - 1 && (
+                          <Button type="button" onClick={addRouterRow}>
+                            Add Row
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4">
+                  <Label>Path Diagram</Label>
+                  <p className="text-sm text-muted-foreground mb-2">Describe how the customer is connected, e.g. backbone juniper-&gt;l2 switch-&gt;some switch-&gt;small router</p>
+                  <textarea
+                    className="w-full rounded-md border p-2"
+                    rows={3}
+                    value={formData.pathDiagram}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, pathDiagram: e.target.value }))}
+                    placeholder="backbone juniper->l2 switch->some switch->small router"
+                  />
+                </div>
+              </div>
             <div className="flex gap-3 pt-6">
               <Button
                 type="submit"

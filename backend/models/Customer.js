@@ -102,6 +102,21 @@ const customerSchema = new mongoose.Schema(
       purchased: { type: Number, default: 0 },
       total: { type: Number, default: 0 },
     },
+    // Router details: array of small objects { name, port }
+    routerDetails: [
+      new mongoose.Schema(
+        {
+          name: { type: String, default: "" },
+          port: { type: String, default: "" },
+        },
+        { _id: false }
+      ),
+    ],
+    // Path diagram: textual representation of how customer is connected
+    pathDiagram: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

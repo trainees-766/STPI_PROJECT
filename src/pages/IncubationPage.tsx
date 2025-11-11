@@ -134,6 +134,10 @@ const IncubationPage = () => {
                 customer: { bridgeIp: "", frequency: "", ssid: "", wpa2PreSharedKey: "", peakRssi: "", channelBandwidth: "" },
               }
             : editingCustomer.bridgeDetails,
+        routerDetails: editingCustomer.routerDetails && Array.isArray(editingCustomer.routerDetails)
+          ? editingCustomer.routerDetails
+          : [{ name: "", port: "" }],
+        pathDiagram: editingCustomer.pathDiagram || "",
       }
     : null;
 
@@ -541,6 +545,31 @@ const IncubationPage = () => {
                             </div>
                           </div>
                         )}
+
+                        {/* Router Details */}
+                        {viewingCustomer.routerDetails && Array.isArray(viewingCustomer.routerDetails) && viewingCustomer.routerDetails.length > 0 && (
+                          <div>
+                            <h3 className="font-semibold text-sky-600 mb-2">Router Details</h3>
+                            <div className="space-y-1 text-base">
+                              <ul className="list-disc ml-5">
+                                {viewingCustomer.routerDetails.map((r: any, i: number) => (
+                                  <li key={i}>
+                                    <span className="font-semibold">{r.name || '—'}</span>
+                                    {r.port ? ` · ${r.port}` : ''}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+
+                        {viewingCustomer.pathDiagram && (
+                          <div className="mt-2">
+                            <h3 className="font-semibold text-sky-600 mb-2">Path Diagram</h3>
+                            <p className="text-base">{viewingCustomer.pathDiagram}</p>
+                          </div>
+                        )}
+
                         {viewingCustomer.prtgGraphLink && (
                           <div>
                             <h3 className="font-semibold text-sky-600 mb-2">
