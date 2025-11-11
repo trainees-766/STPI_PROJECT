@@ -33,8 +33,8 @@ const sections = [
     color: "from-yellow-500 to-orange-500",
   },
   {
-    title: "Projects",
-    description: "Track and manage organizational projects",
+    title: "Co Location",
+    description: "Track and manage co location customers and racks",
     icon: FolderOpen,
     path: "/projects",
     color: "from-purple-500 to-pink-500",
@@ -53,7 +53,7 @@ const Index = () => {
                 SOFTWARE TECHNOLOGY PARKS OK INDIA - KAKINADA
               </h1>
               <p className="mt-1 text-sm sm:text-base lg:text-lg text-sky-700/80 max-w-3xl">
-                Centralized platform for managing customers, units, and projects
+                Centralized platform for managing customers, units, and co location
                 across all departments
               </p>
             </div>

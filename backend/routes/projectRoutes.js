@@ -1,66 +1,68 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Project = require('../models/Project');
+const CoLocation = require("../models/Project");
+const { log } = require("console");
 
-// Get all projects
-router.get('/', async (req, res) => {
+// Get all co-locations
+router.get("/", async (req, res) => {
   try {
-    const projects = await Project.find();
-    res.json(projects);
+    const coLocations = await CoLocation.find();
+    res.json(coLocations);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Get single project
-router.get('/:id', async (req, res) => {
+// Get single co-location
+router.get("/:id", async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
-    if (!project) {
-      return res.status(404).json({ error: 'Project not found' });
+    const coLocation = await CoLocation.findById(req.params.id);
+    if (!coLocation) {
+      return res.status(404).json({ error: "Co Location not found" });
     }
-    res.json(project);
+    res.json(coLocation);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Create project
-router.post('/', async (req, res) => {
+// Create co-location
+router.post("/add", async (req, res) => {
+  console.log(req.body);
   try {
-    const project = new Project(req.body);
-    await project.save();
-    res.status(201).json(project);
+    const coLocation = new CoLocation(req.body);
+    await coLocation.save();
+    res.status(201).json(coLocation);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// Update project
-router.put('/:id', async (req, res) => {
+// Update co-location
+router.put("/:id", async (req, res) => {
   try {
-    const project = await Project.findByIdAndUpdate(
+    const coLocation = await CoLocation.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
-    if (!project) {
-      return res.status(404).json({ error: 'Project not found' });
+    if (!coLocation) {
+      return res.status(404).json({ error: "Co Location not found" });
     }
-    res.json(project);
+    res.json(coLocation);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// Delete project
-router.delete('/:id', async (req, res) => {
+// Delete co-location
+router.delete("/:id", async (req, res) => {
   try {
-    const project = await Project.findByIdAndDelete(req.params.id);
-    if (!project) {
-      return res.status(404).json({ error: 'Project not found' });
+    const coLocation = await CoLocation.findByIdAndDelete(req.params.id);
+    if (!coLocation) {
+      return res.status(404).json({ error: "Co Location not found" });
     }
-    res.json({ message: 'Project deleted successfully' });
+    res.json({ message: "Co Location deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
