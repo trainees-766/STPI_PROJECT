@@ -28,12 +28,14 @@ const unitSchema = new mongoose.Schema(
       default: [],
     },
     softexDetails: {
-      type: [ {
-        year: String,
-        month: String,
-        amount: String,
-        mpr: String,
-      },],
+      type: [
+        {
+          year: String,
+          month: String,
+          amount: String,
+          mpr: String,
+        },
+      ],
       default: [],
     },
     financialExpenses: [
@@ -43,6 +45,21 @@ const unitSchema = new mongoose.Schema(
         description: String,
       },
     ],
+    // Director / Manager details
+    managerName: { type: String, default: "" },
+    managerEmail: { type: String, default: "" },
+    managerPhone: { type: String, default: "" },
+    managerDesignation: { type: String, default: "" },
+    // Contact details
+    contactName: { type: String, default: "" },
+    contactEmail: { type: String, default: "" },
+    contactPhone: { type: String, default: "" },
+    // Registration / company identifiers
+    roc: { type: String, default: "" },
+    gst: { type: String, default: "" },
+    iec: { type: String, default: "" },
+    // Address
+    address: { type: String, default: "" },
   },
   {
     timestamps: true,

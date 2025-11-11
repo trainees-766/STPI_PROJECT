@@ -15,6 +15,18 @@ interface Unit {
   aprReports: string[];
   softexDetails: string[];
   financialExpenses: { year: string; amount: string; description: string }[];
+  // new fields
+  managerName?: string;
+  managerEmail?: string;
+  managerPhone?: string;
+  managerDesignation?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  roc?: string;
+  gst?: string;
+  iec?: string;
+  address?: string;
 }
 
 interface UnitFormProps {
@@ -33,6 +45,17 @@ export const UnitForm = ({ unit, isStpi, onSubmit, onCancel }: UnitFormProps) =>
     aprReports: unit?.aprReports || [""],
   softexDetails: unit?.softexDetails || [{ year: "", month: "", amount: "", mpr: "" }],
     financialExpenses: unit?.financialExpenses || [{ year: "", amount: "", description: "" }],
+    managerName: unit?.managerName || "",
+    managerEmail: unit?.managerEmail || "",
+    managerPhone: unit?.managerPhone || "",
+    managerDesignation: unit?.managerDesignation || "",
+    contactName: unit?.contactName || "",
+    contactEmail: unit?.contactEmail || "",
+    contactPhone: unit?.contactPhone || "",
+    roc: unit?.roc || "",
+    gst: unit?.gst || "",
+    iec: unit?.iec || "",
+    address: unit?.address || "",
   });
 
   const [revenue, setRevenue] = useState("")
@@ -169,6 +192,52 @@ const handleRangeSelect = (index, selectedValue) => {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Director / Manager & Contact Details */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-primary">Director / Manager</h3>
+                <Label htmlFor="managerName">Name</Label>
+                <Input id="managerName" value={formData.managerName} onChange={(e)=>setFormData(prev=>({...prev, managerName: e.target.value}))} />
+                <Label htmlFor="managerDesignation">Designation</Label>
+                <Input id="managerDesignation" value={formData.managerDesignation} onChange={(e)=>setFormData(prev=>({...prev, managerDesignation: e.target.value}))} />
+                <Label htmlFor="managerEmail">Email</Label>
+                <Input id="managerEmail" type="email" value={formData.managerEmail} onChange={(e)=>setFormData(prev=>({...prev, managerEmail: e.target.value}))} />
+                <Label htmlFor="managerPhone">Phone</Label>
+                <Input id="managerPhone" value={formData.managerPhone} onChange={(e)=>setFormData(prev=>({...prev, managerPhone: e.target.value}))} />
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-primary">Contact Details</h3>
+                <Label htmlFor="contactName">Contact Name</Label>
+                <Input id="contactName" value={formData.contactName} onChange={(e)=>setFormData(prev=>({...prev, contactName: e.target.value}))} />
+                <Label htmlFor="contactEmail">Contact Email</Label>
+                <Input id="contactEmail" type="email" value={formData.contactEmail} onChange={(e)=>setFormData(prev=>({...prev, contactEmail: e.target.value}))} />
+                <Label htmlFor="contactPhone">Contact Phone</Label>
+                <Input id="contactPhone" value={formData.contactPhone} onChange={(e)=>setFormData(prev=>({...prev, contactPhone: e.target.value}))} />
+              </div>
+            </div>
+
+            {/* Registrations & Address */}
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="roc">ROC</Label>
+                <Input id="roc" value={formData.roc} onChange={(e)=>setFormData(prev=>({...prev, roc: e.target.value}))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="gst">GST</Label>
+                <Input id="gst" value={formData.gst} onChange={(e)=>setFormData(prev=>({...prev, gst: e.target.value}))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="iec">IEC</Label>
+                <Input id="iec" value={formData.iec} onChange={(e)=>setFormData(prev=>({...prev, iec: e.target.value}))} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea id="address" value={formData.address} onChange={(e)=>setFormData(prev=>({...prev, address: e.target.value}))} />
             </div>
 
             {/* Legal Agreements (STPI only) */}

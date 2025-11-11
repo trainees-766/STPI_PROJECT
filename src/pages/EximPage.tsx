@@ -37,9 +37,21 @@ interface Unit {
   mpr: string;
 }[];
   financialExpenses: { year: string; amount: string; description: string }[];
+  // new fields
+  managerName?: string;
+  managerEmail?: string;
+  managerPhone?: string;
+  managerDesignation?: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  roc?: string;
+  gst?: string;
+  iec?: string;
+  address?: string;
 }
 
-const API_BASE_URL = "http://10.1.2.138:5000/api";
+const API_BASE_URL = "http://localhost:5000/api";
 
 const EximPage = () => {
   const [stpiUnits, setStpiUnits] = useState<Unit[]>([]);
@@ -304,6 +316,12 @@ useEffect(() => {
                           {unit.startDate} → {unit.endDate}
                         </p>
                       </CardHeader>
+                      <CardContent>
+                        <div className="text-sm">
+                          <p><span className="font-medium">Manager:</span> {unit.managerName || '—'}</p>
+                          <p><span className="font-medium">Contact:</span> {unit.contactEmail || unit.contactPhone || '—'}</p>
+                        </div>
+                      </CardContent>
                     </Card>
                   ))}
                 </div>
@@ -347,10 +365,53 @@ useEffect(() => {
       </p>
     </div>
 
+    {/* Director/Manager & Contact / Registrations */}
+    <div className="grid md:grid-cols-2 gap-6">
+      <div className="bg-white border-2 border-orange-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+        <h3 className="text-lg font-bold text-orange-600 mb-4 flex items-center gap-2">
+          <span className="text-2xl">👤</span> Director / Manager Details
+        </h3>
+        <div className="space-y-2 ml-2">
+          <p className="text-base"><span className="font-semibold text-gray-700">Name:</span> <span className="text-gray-900">{viewingUnit.managerName || '—'}</span></p>
+          <p className="text-base"><span className="font-semibold text-gray-700">Designation:</span> <span className="text-gray-900">{viewingUnit.managerDesignation || '—'}</span></p>
+          <p className="text-base"><span className="font-semibold text-gray-700">Email:</span> <span className="text-blue-600">{viewingUnit.managerEmail || '—'}</span></p>
+          <p className="text-base"><span className="font-semibold text-gray-700">Phone:</span> <span className="text-gray-900">{viewingUnit.managerPhone || '—'}</span></p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <div className="bg-white border-2 border-green-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+          <h3 className="text-lg font-bold text-green-600 mb-4 flex items-center gap-2">
+            <span className="text-2xl">📞</span> Contact Details
+          </h3>
+          <div className="space-y-2 ml-2">
+            <p className="text-base"><span className="font-semibold text-gray-700">Contact:</span> <span className="text-gray-900">{viewingUnit.contactName || '—'}</span></p>
+            <p className="text-base"><span className="font-semibold text-gray-700">Email:</span> <span className="text-blue-600">{viewingUnit.contactEmail || '—'}</span></p>
+            <p className="text-base"><span className="font-semibold text-gray-700">Phone:</span> <span className="text-gray-900">{viewingUnit.contactPhone || '—'}</span></p>
+          </div>
+        </div>
+
+        <div className="bg-white border-2 border-amber-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow">
+          <h3 className="text-lg font-bold text-amber-600 mb-4 flex items-center gap-2">
+            <span className="text-2xl">🏷️</span> Registrations & Address
+          </h3>
+          <div className="space-y-2 ml-2">
+            <p className="text-base"><span className="font-semibold text-gray-700">ROC:</span> <span className="text-gray-900">{viewingUnit.roc || '—'}</span></p>
+            <p className="text-base"><span className="font-semibold text-gray-700">GST:</span> <span className="text-gray-900">{viewingUnit.gst || '—'}</span></p>
+            <p className="text-base"><span className="font-semibold text-gray-700">IEC:</span> <span className="text-gray-900">{viewingUnit.iec || '—'}</span></p>
+            <div className="mt-3 pt-3 border-t border-amber-100">
+              <p className="font-semibold text-gray-700 mb-2">Address:</p>
+              <p className="text-base text-gray-800 whitespace-pre-wrap">{viewingUnit.address || '—'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {/* Legal Agreements */}
     {viewingUnit.legalAgreements?.length > 0 && (
   <div>
-    <h3 className="text-lg font-semibold text-sky-700">Legal Agreements</h3>
+    <h3 className="text-lg font-semibold text-sky-700">Agreements</h3>
     <ul className="list-disc pl-5  mt-2">
       {viewingUnit.legalAgreements.map((item, idx) => {
         const formatted = item.replace(/(Dated[:\-]?\s*)/i, "\n$1");
@@ -374,14 +435,11 @@ useEffect(() => {
         <ul className="list-disc pl-5 space-y-1">
           {viewingUnit.aprReports.map((file, i) => (
             <li key={i}>
-              <a
-                href={file}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sky-700 hover:underline"
+              <p
+                className="text-primary font-semibold hover:underline"
               >
                 {file.split("/").pop()}
-              </a>
+              </p>
             </li>
           ))}
         </ul>
