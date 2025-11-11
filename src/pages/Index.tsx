@@ -9,6 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Footer from "@/components/ui/footer";
 
 const sections = [
   {
@@ -43,6 +44,7 @@ const sections = [
 
 const Index = () => {
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-br from-background to-accent/20 p-6">
       <div className="max-w-8xl mx-auto space-y-10 md:space-y-20">
         <div className="flex flex-col items-center gap-3 lg:flex-row w-full lg:items-end lg:justify-between absolute top-0 left-0">
@@ -96,6 +98,8 @@ const Index = () => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

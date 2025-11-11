@@ -22,8 +22,9 @@ import {
 import { CustomerForm } from "@/components/CustomerForm";
 import { useToast } from "@/hooks/use-toast";
 import { log } from "console";
+import Footer from "@/components/ui/footer";
 
-const API_BASE_URL = "http://localhost:5000/api"; 
+const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 interface Customer {
   _id: string;
@@ -529,7 +530,7 @@ const DatacomPage = () => {
         >
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gradient-to-b from-slate-50 to-white">
             <DialogHeader className="bg-gradient-to-r from-sky-600 to-sky-700 px-6 py-4 rounded-lg -mx-6 -mt-6 mb-4">
-              <DialogTitle className="text-3xl font-bold text-primary">
+              <DialogTitle className="text-3xl font-bold text-white">
                 {viewingCustomer?.companyName} - Customer Details
               </DialogTitle>
             </DialogHeader>
@@ -733,7 +734,7 @@ const DatacomPage = () => {
                       href={viewingCustomer.prtgGraphLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block px-5 py-2 bg-blue-600 text-primary font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                      className="inline-block px-5 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       📊 View PRTG Graph →
                     </a>
@@ -780,6 +781,7 @@ const DatacomPage = () => {
           </DialogContent>
         </Dialog>
       </div>
+       <Footer />
     </div>
   );
 };

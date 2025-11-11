@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import Footer from "@/components/ui/footer";
 
 interface IncubationCustomer {
   companyName: string;
@@ -55,7 +56,7 @@ interface IncubationCustomer {
   bandwidthDetails?: { free: number; purchased: number; total: number };
 }
 
-const API_BASE_URL = "http://localhost:5000/api"; 
+const API_BASE_URL = `${import.meta.env.VITE_BACKEND_URL}/api`;
 
 const IncubationPage = () => {
   const [customers, setCustomers] = useState<IncubationCustomer[]>([]);
@@ -626,6 +627,7 @@ const IncubationPage = () => {
           />
         )}
       </div>
+        <Footer />
     </div>
   );
 };
